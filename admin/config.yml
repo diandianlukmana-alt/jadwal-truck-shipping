@@ -1,0 +1,30 @@
+backend:
+  name: git-gateway
+  branch: main # Atau master jika nama branch utama kamu master
+
+media_folder: "assets/uploads"
+
+collections:
+  - name: "jadwal_dcm"
+    label: "Jadwal DCM"
+    folder: "data/dcm"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Tanggal", name: "tanggal", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false }
+      - { label: "Jadwal Truck", name: "truck", widget: "string", default: "DCM" }
+      - { label: "Kategori", name: "kategori", widget: "select", options: ["Pengiriman Finishgoods", "Pengambilan Compound"] }
+      - { label: "Tujuan", name: "tujuan", widget: "string" }
+      - { label: "Jumlah Rit", name: "rit", widget: "number", value_type: "int", default: 1 }
+
+  - name: "jadwal_hitoshi"
+    label: "Jadwal HITOSHI"
+    folder: "data/hitoshi"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Tanggal", name: "tanggal", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false }
+      - { label: "Jadwal Truck", name: "truck", widget: "string", default: "HITOSHI" }
+      - { label: "Kategori", name: "kategori", widget: "select", options: ["Pengiriman Finishgoods", "Pengambilan Compound"] }
+      - { label: "Tujuan", name: "tujuan", widget: "string" }
+      - { label: "Jumlah Rit", name: "rit", widget: "number", value_type: "int", default: 1 }
