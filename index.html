@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JADWAL TRUCK DCM & HITOSHI</title>
+    <!-- Skrip Netlify Identity untuk Login/Password -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         :root {
             --background: #0b1329;
@@ -284,6 +286,17 @@
     }
 
     window.onload = gantiSourceData;
+
+    // Menangani redirect pendaftaran Netlify Identity
+    if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+            if (!user) {
+                window.netlifyIdentity.on("login", () => {
+                    document.location.href = "/admin/";
+                });
+            }
+        });
+    }
 </script>
 
 </body>
