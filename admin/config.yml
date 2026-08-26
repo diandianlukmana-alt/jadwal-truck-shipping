@@ -14,7 +14,7 @@ collections:
       - { label: "Tanggal", name: "tanggal", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false }
       - { label: "Jadwal Truck", name: "truck", widget: "string", default: "DCM" }
       - { label: "Kategori", name: "kategori", widget: "select", options: ["Pengiriman Finishgoods", "Pengambilan Compound"] }
-      - { label: "Tujuan", name: "tujuan", widget: "string" }
+      - { label: "Tujuan", name: "tujuan", widget: "select", options: ["SUZUKI TAMBUN", "SUZUKI CIKARANG", "IRC RUBBER"] }
       - { label: "Jumlah Rit", name: "rit", widget: "number", value_type: "int", default: 1 }
 
   - name: "jadwal_hitoshi"
@@ -26,5 +26,5 @@ collections:
       - { label: "Tanggal", name: "tanggal", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false }
       - { label: "Jadwal Truck", name: "truck", widget: "string", default: "HITOSHI" }
       - { label: "Kategori", name: "kategori", widget: "select", options: ["Pengiriman Finishgoods", "Pengambilan Compound"] }
-      - { label: "Tujuan", name: "tujuan", widget: "string" }
+      - { label: "Tujuan", name: "tujuan", widget: "select", options: ["SUZUKI TAMBUN", "SUZUKI CIKARANG", "IRC RUBBER"] }
       - { label: "Jumlah Rit", name: "rit", widget: "number", value_type: "int", default: 1 }
