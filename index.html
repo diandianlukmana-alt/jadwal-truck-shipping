@@ -8,7 +8,7 @@
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         :root {
-            --surface: rgba(255, 255, 255, 0.94);
+            --surface: rgba(255, 255, 255, 0.95);
             --filter-bg: #f8fafc;
             --border: #e2e8f0;
             --text-primary: #1e293b;
@@ -21,8 +21,7 @@
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            /* Latar belakang gambar truk yang jelas dan terang */
-            background: linear-gradient(rgba(244, 246, 249, 0.1), rgba(244, 246, 249, 0.1)), 
+            background: linear-gradient(rgba(244, 246, 249, 0.15), rgba(244, 246, 249, 0.15)), 
                         url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-primary);
@@ -42,7 +41,7 @@
             border-radius: 12px;
             border: 1px solid var(--border);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-            backdrop-filter: blur(6px);
+            backdrop-filter: blur(8px);
         }
 
         .header-title {
@@ -193,17 +192,17 @@
 <div class="container">
     <div class="header-title">
         <h2>🚚 JADWAL TRUCK DCM & HITOSHI</h2>
-        <!-- Logo INOAC langsung dapat dimuat online -->
+        <!-- Logo INOAC -->
         <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/INOAC_logo.svg" alt="INOAC Logo" class="logo-inoac" onerror="this.src='https://www.inoac.co.jp/en/assets/img/common/logo.svg'">
     </div>
     
     <div class="filter-container">
         <div>
             <label for="pilihTruck">Pilih Truck :</label>
-            <select id="pilihTruck" onchange="gantiSourceData()">
+            <select id="pilihTruck" onchange="filterData()">
                 <option value="semua">DCM & HITOSHI</option>
-                <option value="data_dcm.txt">DCM</option>
-                <option value="data_hitoshi.txt">HITOSHI</option>
+                <option value="DCM">DCM</option>
+                <option value="HITOSHI">HITOSHI</option>
             </select>
         </div>
         <div>
@@ -237,57 +236,110 @@
 <script>
     let databaseJadwal = [];
 
-    async function ambilFileTxt(namaFile) {
-        const respon = await fetch(`${namaFile}?v=${new Date().getTime()}`);
-        if (!respon.ok) throw new Error(`Gagal membaca ${namaFile}`);
-        const teks = await respon.text();
-        
-        const baris = teks.split(/\r?\n/);
-        const hasil = [];
-
-        baris.forEach(row => {
-            if (!row.trim()) return;
-            const item = row.split(';').map(s => s.trim());
-            if (item.length < 5) return;
-            
-            hasil.push({
-                tanggal: item[0],
-                truck: item[1],
-                kategori: item[2],
-                tujuan: item[3],
-                rit: item[4]
-            });
-        });
-
-        return hasil;
+    // Fungsi normalisasi tanggal ke YYYY-MM-DD
+    function formatTanggalStandard(tglStr) {
+        if (!tglStr) return '';
+        const tgl = new Date(tglStr);
+        if (!isNaN(tgl.getTime())) {
+            const yyyy = tgl.getFullYear();
+            const mm = String(tgl.getMonth() + 1).padStart(2, '0');
+            const dd = String(tgl.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+        return tglStr.trim();
     }
 
-    async function gantiSourceData() {
-        const pilihan = document.getElementById('pilihTruck').value;
+    // Ambil data dari file TXT (Metode Cadangan)
+    async function ambilFileTxt(namaFile) {
+        try {
+            const respon = await fetch(`${namaFile}?v=${new Date().getTime()}`);
+            if (!respon.ok) return [];
+            const teks = await respon.text();
+            
+            const baris = teks.split(/\r?\n/);
+            const hasil = [];
+
+            baris.forEach(row => {
+                if (!row.trim()) return;
+                const item = row.split(';').map(s => s.trim());
+                if (item.length < 5) return;
+                
+                hasil.push({
+                    tanggal: formatTanggalStandard(item[0]),
+                    truck: item[1],
+                    kategori: item[2],
+                    tujuan: item[3],
+                    rit: parseInt(item[4]) || 1
+                });
+            });
+
+            return hasil;
+        } catch (e) {
+            return [];
+        }
+    }
+
+    // Ambil data dari Netlify CMS / Decap CMS
+    async function muatSemuaData() {
         const loadingEl = document.getElementById('loadingInfo');
         loadingEl.style.display = 'block';
+        databaseJadwal = [];
 
         try {
-            if (pilihan === 'semua') {
-                const [dcm, hitoshi] = await Promise.all([
-                    ambilFileTxt('data_dcm.txt'),
-                    ambilFileTxt('data_hitoshi.txt')
-                ]);
-                databaseJadwal = [...dcm, ...hitoshi];
-            } else {
-                databaseJadwal = await ambilFileTxt(pilihan);
+            // 1. Coba ambil dari folder CMS (content/jadwal_dcm atau JSON)
+            const resDCM = await fetch('/content/jadwal_dcm/index.json?v=' + new Date().getTime()).catch(() => null);
+            const resHITOSHI = await fetch('/content/jadwal_hitoshi/index.json?v=' + new Date().getTime()).catch(() => null);
+
+            let cmsData = [];
+            if (resDCM && resDCM.ok) {
+                const data = await resDCM.json();
+                cmsData = [...cmsData, ...(Array.isArray(data) ? data : [data])];
             }
+            if (resHITOSHI && resHITOSHI.ok) {
+                const data = await resHITOSHI.json();
+                cmsData = [...cmsData, ...(Array.isArray(data) ? data : [data])];
+            }
+
+            // Normalisasi data dari CMS
+            cmsData = cmsData.map(item => ({
+                tanggal: formatTanggalStandard(item.tanggal || item.date || ''),
+                truck: item.jadwal_truck || item.truck || 'DCM',
+                kategori: item.kategori || '-',
+                tujuan: item.tujuan || '-',
+                rit: parseInt(item.jumlah_rit || item.rit) || 1
+            }));
+
+            // 2. Ambil juga dari file TXT jika ada
+            const [txtDCM, txtHITOSHI] = await Promise.all([
+                ambilFileTxt('data_dcm.txt'),
+                ambilFileTxt('data_hitoshi.txt')
+            ]);
+
+            databaseJadwal = [...cmsData, ...txtDCM, ...txtHITOSHI];
+
             loadingEl.style.display = 'none';
+            
+            // Set default tanggal hari ini pada input jika belum dipilih
+            const inputTgl = document.getElementById('pilihTanggal');
+            if (!inputTgl.value) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                inputTgl.value = `${yyyy}-${mm}-${dd}`;
+            }
+
             filterData();
         } catch (err) {
             console.error(err);
-            loadingEl.style.display = 'block';
-            loadingEl.innerText = '❌ Gagal memuat data file .txt';
+            loadingEl.style.display = 'none';
+            filterData();
         }
     }
 
     function filterData() {
         const tglInput = document.getElementById('pilihTanggal').value;
+        const filterTruck = document.getElementById('pilihTruck').value;
         const tbody = document.getElementById('isiTabel');
         const stats = document.getElementById('statsSummary');
 
@@ -298,15 +350,18 @@
         }
 
         const filtered = databaseJadwal.filter(item => {
-            const tglData = item.tanggal.replace(/[\/\-]/g, '').trim();
-            const tglPilihan = tglInput.replace(/[\/\-]/g, '').trim();
-            return tglData === tglPilihan;
+            const matchTanggal = item.tanggal === tglInput;
+
+            let matchTruck = true;
+            if (filterTruck !== 'semua') {
+                matchTruck = (item.truck || '').toUpperCase().includes(filterTruck.toUpperCase());
+            }
+
+            return matchTanggal && matchTruck;
         });
 
         tbody.innerHTML = '';
-
         const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 0), 0);
-
         stats.innerHTML = `📋 Total: <b>${totalRit}</b> rit`;
 
         if (filtered.length === 0) {
@@ -326,7 +381,7 @@
         });
     }
 
-    window.onload = gantiSourceData;
+    window.onload = muatSemuaData;
 
     if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {
