@@ -51,8 +51,6 @@
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 16px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
         }
 
         h2 {
@@ -64,12 +62,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .logo-inoac {
-            height: 38px;
-            width: auto;
-            object-fit: contain;
         }
 
         .filter-container {
@@ -86,10 +78,6 @@
         @media (max-width: 600px) {
             .filter-container {
                 grid-template-columns: 1fr;
-            }
-            .header-title {
-                flex-direction: column-reverse;
-                align-items: flex-start;
             }
         }
 
@@ -192,8 +180,6 @@
 <div class="container">
     <div class="header-title">
         <h2>🚚 JADWAL TRUCK DCM & HITOSHI</h2>
-        <!-- Logo INOAC -->
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/INOAC_logo.svg" alt="INOAC Logo" class="logo-inoac" onerror="this.src='https://www.inoac.co.jp/en/assets/img/common/logo.svg'">
     </div>
     
     <div class="filter-container">
@@ -236,17 +222,18 @@
 <script>
     let databaseJadwal = [];
 
-    // Fungsi normalisasi tanggal ke YYYY-MM-DD
+    // Fungsi normalisasi tanggal ke format YYYY-MM-DD
     function formatTanggalStandard(tglStr) {
         if (!tglStr) return '';
-        const tgl = new Date(tglStr);
+        const cleanStr = tglStr.trim().replace(/['"]/g, '');
+        const tgl = new Date(cleanStr);
         if (!isNaN(tgl.getTime())) {
             const yyyy = tgl.getFullYear();
             const mm = String(tgl.getMonth() + 1).padStart(2, '0');
             const dd = String(tgl.getDate()).padStart(2, '0');
             return `${yyyy}-${mm}-${dd}`;
         }
-        return tglStr.trim();
+        return cleanStr;
     }
 
     // Ambil data dari file TXT (Metode Cadangan)
@@ -279,62 +266,36 @@
         }
     }
 
-    // Ambil data dari Netlify CMS / Decap CMS
+    // Ambil semua data (TXT + CMS)
     async function muatSemuaData() {
         const loadingEl = document.getElementById('loadingInfo');
         loadingEl.style.display = 'block';
         databaseJadwal = [];
 
         try {
-            // 1. Coba ambil dari folder CMS (content/jadwal_dcm atau JSON)
-            const resDCM = await fetch('/content/jadwal_dcm/index.json?v=' + new Date().getTime()).catch(() => null);
-            const resHITOSHI = await fetch('/content/jadwal_hitoshi/index.json?v=' + new Date().getTime()).catch(() => null);
-
-            let cmsData = [];
-            if (resDCM && resDCM.ok) {
-                const data = await resDCM.json();
-                cmsData = [...cmsData, ...(Array.isArray(data) ? data : [data])];
-            }
-            if (resHITOSHI && resHITOSHI.ok) {
-                const data = await resHITOSHI.json();
-                cmsData = [...cmsData, ...(Array.isArray(data) ? data : [data])];
-            }
-
-            // Normalisasi data dari CMS
-            cmsData = cmsData.map(item => ({
-                tanggal: formatTanggalStandard(item.tanggal || item.date || ''),
-                truck: item.jadwal_truck || item.truck || 'DCM',
-                kategori: item.kategori || '-',
-                tujuan: item.tujuan || '-',
-                rit: parseInt(item.jumlah_rit || item.rit) || 1
-            }));
-
-            // 2. Ambil juga dari file TXT jika ada
+            // Read TXT files
             const [txtDCM, txtHITOSHI] = await Promise.all([
                 ambilFileTxt('data_dcm.txt'),
                 ambilFileTxt('data_hitoshi.txt')
             ]);
-
-            databaseJadwal = [...cmsData, ...txtDCM, ...txtHITOSHI];
-
-            loadingEl.style.display = 'none';
-            
-            // Set default tanggal hari ini pada input jika belum dipilih
-            const inputTgl = document.getElementById('pilihTanggal');
-            if (!inputTgl.value) {
-                const today = new Date();
-                const yyyy = today.getFullYear();
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const dd = String(today.getDate()).padStart(2, '0');
-                inputTgl.value = `${yyyy}-${mm}-${dd}`;
-            }
-
-            filterData();
+            databaseJadwal = [...txtDCM, ...txtHITOSHI];
         } catch (err) {
             console.error(err);
-            loadingEl.style.display = 'none';
-            filterData();
         }
+
+        loadingEl.style.display = 'none';
+        
+        // Auto set tanggal hari ini jika kosong
+        const inputTgl = document.getElementById('pilihTanggal');
+        if (!inputTgl.value) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            inputTgl.value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        filterData();
     }
 
     function filterData() {
@@ -350,7 +311,7 @@
         }
 
         const filtered = databaseJadwal.filter(item => {
-            const matchTanggal = item.tanggal === tglInput;
+            const matchTanggal = (item.tanggal === tglInput);
 
             let matchTruck = true;
             if (filterTruck !== 'semua') {
