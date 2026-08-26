@@ -16,6 +16,9 @@
             --table-header-bg: #f1f5f9;
             --loading-bg: #e0f2fe;
             --loading-text: #0369a1;
+            --note-bg: #fffbebf5;
+            --note-border: #fef08a;
+            --note-text: #854d0e;
         }
 
         body {
@@ -108,6 +111,7 @@
             border-radius: 8px;
             border: 1px solid var(--border);
             background: #ffffff;
+            margin-bottom: 24px;
         }
 
         table {
@@ -151,6 +155,40 @@
             border-radius: 6px;
             margin-bottom: 15px;
             font-weight: 500;
+        }
+
+        /* Desain Kotak Catatan Penting */
+        .note-box {
+            background-color: var(--note-bg);
+            border: 1px solid var(--note-border);
+            border-left: 5px solid #eab308;
+            border-radius: 8px;
+            padding: 16px 20px;
+            color: var(--note-text);
+        }
+
+        .note-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .note-box ol {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .note-box li {
+            margin-bottom: 4px;
+        }
+
+        .note-box li:last-child {
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -196,6 +234,15 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Kotak Catatan Penting -->
+    <div class="note-box">
+        <div class="note-title">📌 Catatan Penting:</div>
+        <ol>
+            <li>Pengiriman ke PT. SUZUKI maximal jam 07:00 wib (Pagi) sudah berangkat.</li>
+            <li>Pic Control: Dian Lukmana (PPIC).</li>
+        </ol>
+    </div>
 </div>
 
 <script>
@@ -209,7 +256,6 @@
         return clean;
     }
 
-    // Parse Frontmatter YAML dari file .md yang dihasilkan Netlify CMS
     function parseFrontmatter(text) {
         const item = {};
         const lines = text.split('\n');
@@ -240,7 +286,6 @@
         };
     }
 
-    // Ambil semua file Markdown dari folder data GitHub API
     async function ambilDataFolder(folder) {
         try {
             const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${folder}`;
