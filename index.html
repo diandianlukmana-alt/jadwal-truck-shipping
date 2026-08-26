@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JADWAL TRUCK DCM & HITOSHI</title>
+    <style>
+        :root {
+            --background: #0b1329;
+            --surface: #131c38;
+            --filter-bg: #1a264a;
+            --border: #263663;
+            --text: #ffffff;
+            --text-secondary: #94a3b8;
+            --loading-bg: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-container {
+            background: var(--filter-bg);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .filter-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        select, input[type="date"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: var(--surface);
+            color: #ffffff;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        select:focus, input[type="date"]:focus {
+            border-color: #3b82f6;
+        }
+
+        .stats {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--filter-bg);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+            color: #e2e8f0;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 12px;
+            color: #38bdf8;
+            font-size: 13px;
+            background: var(--loading-bg);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📅 JADWAL TRUCK DCM & HITOSHI</h2>
+    
+    <div class="filter-container">
+        <div>
+            <label for="pilihTruck">Pilih Truck :</label>
+            <select id="pilihTruck" onchange="gantiSourceData()">
+                <option value="semua">DCM & HITOSHI</option>
+                <option value="data_dcm.txt">DCM</option>
+                <option value="data_hitoshi.txt">HITOSHI</option>
+            </select>
+        </div>
+        <div>
+            <label for="pilihTanggal">Pilih tanggal untuk melihat jadwal:</label>
+            <input type="date" id="pilihTanggal" onchange="filterData()">
+        </div>
+    </div>
+
+    <div id="loadingInfo" class="loading">Sedang memuat data...</div>
+    <div id="statsSummary" class="stats">📋 Menampilkan 0 pengiriman material</div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Jadwal Truck</th>
+                    <th>Kategori</th>
+                    <th>Tujuan</th>
+                    <th>Jumlah rit</th>
+                </tr>
+            </thead>
+            <tbody id="isiTabel">
+                <tr>
+                    <td colspan="4" class="no-data">Silakan pilih tanggal terlebih dahulu.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let databaseJadwal = [];
+
+    async function ambilFileTxt(namaFile) {
+        const respon = await fetch(`${namaFile}?v=${new Date().getTime()}`);
+        if (!respon.ok) throw new Error(`Gagal membaca ${namaFile}`);
+        const teks = await respon.text();
+        
+        const baris = teks.split(/\r?\n/);
+        const hasil = [];
+
+        baris.forEach(row => {
+            if (!row.trim()) return;
+            const item = row.split(';').map(s => s.trim());
+            if (item.length < 5) return;
+            
+            hasil.push({
+                tanggal: item[0],
+                truck: item[1],
+                kategori: item[2],
+                tujuan: item[3],
+                rit: item[4]
+            });
+        });
+
+        return hasil;
+    }
+
+    async function gantiSourceData() {
+        const pilihan = document.getElementById('pilihTruck').value;
+        const loadingEl = document.getElementById('loadingInfo');
+        loadingEl.style.display = 'block';
+
+        try {
+            if (pilihan === 'semua') {
+                const [dcm, hitoshi] = await Promise.all([
+                    ambilFileTxt('data_dcm.txt'),
+                    ambilFileTxt('data_hitoshi.txt')
+                ]);
+                databaseJadwal = [...dcm, ...hitoshi];
+            } else {
+                databaseJadwal = await ambilFileTxt(pilihan);
+            }
+            loadingEl.style.display = 'none';
+            filterData();
+        } catch (err) {
+            console.error(err);
+            loadingEl.style.display = 'block';
+            loadingEl.innerText = '❌ Gagal memuat data file .txt';
+        }
+    }
+
+    function filterData() {
+        const tglInput = document.getElementById('pilihTanggal').value;
+        const tbody = document.getElementById('isiTabel');
+        const stats = document.getElementById('statsSummary');
+
+        if (!tglInput) return;
+
+        const filtered = databaseJadwal.filter(item => {
+            const tglData = item.tanggal.replace(/[\/\-]/g, '').trim();
+            const tglPilihan = tglInput.replace(/[\/\-]/g, '').trim();
+            return tglData === tglPilihan;
+        });
+
+        tbody.innerHTML = '';
+        stats.innerHTML = `📋 Menampilkan ${filtered.length} pengiriman material`;
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="no-data">Tidak ada jadwal pengiriman pada tanggal ini.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${item.truck}</b></td>
+                <td>${item.kategori}</td>
+                <td><b>${item.tujuan}</b></td>
+                <td>${item.rit}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    window.onload = gantiSourceData;
+</script>
+
+</body>
+</html>
