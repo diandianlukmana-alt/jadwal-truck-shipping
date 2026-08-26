@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JADWAL TRUCK DCM & HITOSHI</title>
-    <!-- Skrip Netlify Identity untuk Login/Password -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         :root {
@@ -59,9 +58,6 @@
             font-size: 22px;
             font-weight: 700;
             letter-spacing: 0.3px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .filter-container {
@@ -86,7 +82,6 @@
             display: block;
             margin-bottom: 8px;
             font-size: 14px;
-            color: var(--text-primary);
         }
 
         select, input[type="date"] {
@@ -99,21 +94,12 @@
             color: var(--text-primary);
             box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        select:focus, input[type="date"]:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         .stats {
             font-size: 14px;
             color: var(--text-secondary);
             margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
             font-weight: 500;
         }
 
@@ -135,25 +121,18 @@
             text-align: left;
             font-size: 13px;
             font-weight: 700;
-            color: var(--text-primary);
             border-bottom: 1px solid var(--border);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         td {
             padding: 14px 16px;
             font-size: 14px;
             border-bottom: 1px solid var(--border);
-            color: var(--text-primary);
         }
 
         tr:last-child td {
             border-bottom: none;
-        }
-
-        tr:hover {
-            background-color: #f8fafc;
         }
 
         .no-data {
@@ -207,7 +186,7 @@
                     <th>Jadwal Truck</th>
                     <th>Kategori</th>
                     <th>Tujuan</th>
-                    <th>Jumlah rit</th>
+                    <th>Jumlah Rit</th>
                 </tr>
             </thead>
             <tbody id="isiTabel">
@@ -220,72 +199,85 @@
 </div>
 
 <script>
+    const GITHUB_REPO = "diandianlukmana-alt/jadwal-truck-shipping";
     let databaseJadwal = [];
 
-    // Fungsi normalisasi tanggal ke format YYYY-MM-DD
-    function formatTanggalStandard(tglStr) {
-        if (!tglStr) return '';
-        const cleanStr = tglStr.trim().replace(/['"]/g, '');
-        const tgl = new Date(cleanStr);
-        if (!isNaN(tgl.getTime())) {
-            const yyyy = tgl.getFullYear();
-            const mm = String(tgl.getMonth() + 1).padStart(2, '0');
-            const dd = String(tgl.getDate()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd}`;
-        }
-        return cleanStr;
+    function formatTanggal(str) {
+        if (!str) return '';
+        const clean = str.trim().replace(/['"]/g, '');
+        if (clean.length >= 10) return clean.substring(0, 10);
+        return clean;
     }
 
-    // Ambil data dari file TXT (Metode Cadangan)
-    async function ambilFileTxt(namaFile) {
+    // Parse Frontmatter YAML dari file .md yang dihasilkan Netlify CMS
+    function parseFrontmatter(text) {
+        const item = {};
+        const lines = text.split('\n');
+        let inFrontmatter = false;
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed === '---') {
+                inFrontmatter = !inFrontmatter;
+                return;
+            }
+            if (inFrontmatter) {
+                const parts = trimmed.split(':');
+                if (parts.length >= 2) {
+                    const key = parts[0].trim().toLowerCase();
+                    const val = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
+                    item[key] = val;
+                }
+            }
+        });
+
+        return {
+            tanggal: formatTanggal(item.tanggal),
+            truck: item.truck || 'DCM',
+            kategori: item.kategori || '',
+            tujuan: item.tujuan || '',
+            rit: parseInt(item.rit) || 1
+        };
+    }
+
+    // Ambil semua file Markdown dari folder data GitHub API
+    async function ambilDataFolder(folder) {
         try {
-            const respon = await fetch(`${namaFile}?v=${new Date().getTime()}`);
-            if (!respon.ok) return [];
-            const teks = await respon.text();
+            const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${folder}`;
+            const res = await fetch(url);
+            if (!res.ok) return [];
+            const files = await res.json();
             
-            const baris = teks.split(/\r?\n/);
-            const hasil = [];
-
-            baris.forEach(row => {
-                if (!row.trim()) return;
-                const item = row.split(';').map(s => s.trim());
-                if (item.length < 5) return;
-                
-                hasil.push({
-                    tanggal: formatTanggalStandard(item[0]),
-                    truck: item[1],
-                    kategori: item[2],
-                    tujuan: item[3],
-                    rit: parseInt(item[4]) || 1
+            const promises = files
+                .filter(file => file.name.endsWith('.md'))
+                .map(async file => {
+                    const contentRes = await fetch(file.download_url);
+                    const text = await contentRes.text();
+                    return parseFrontmatter(text);
                 });
-            });
 
-            return hasil;
+            return await Promise.all(promises);
         } catch (e) {
             return [];
         }
     }
 
-    // Ambil semua data (TXT + CMS)
     async function muatSemuaData() {
         const loadingEl = document.getElementById('loadingInfo');
         loadingEl.style.display = 'block';
-        databaseJadwal = [];
 
         try {
-            // Read TXT files
-            const [txtDCM, txtHITOSHI] = await Promise.all([
-                ambilFileTxt('data_dcm.txt'),
-                ambilFileTxt('data_hitoshi.txt')
+            const [dcmData, hitoshiData] = await Promise.all([
+                ambilDataFolder('data/dcm'),
+                ambilDataFolder('data/hitoshi')
             ]);
-            databaseJadwal = [...txtDCM, ...txtHITOSHI];
-        } catch (err) {
-            console.error(err);
+            databaseJadwal = [...dcmData, ...hitoshiData];
+        } catch (e) {
+            console.error(e);
         }
 
         loadingEl.style.display = 'none';
-        
-        // Auto set tanggal hari ini jika kosong
+
         const inputTgl = document.getElementById('pilihTanggal');
         if (!inputTgl.value) {
             const today = new Date();
@@ -312,12 +304,10 @@
 
         const filtered = databaseJadwal.filter(item => {
             const matchTanggal = (item.tanggal === tglInput);
-
             let matchTruck = true;
             if (filterTruck !== 'semua') {
                 matchTruck = (item.truck || '').toUpperCase().includes(filterTruck.toUpperCase());
             }
-
             return matchTanggal && matchTruck;
         });
 
@@ -343,16 +333,6 @@
     }
 
     window.onload = muatSemuaData;
-
-    if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-            if (!user) {
-                window.netlifyIdentity.on("login", () => {
-                    document.location.href = "/admin/";
-                });
-            }
-        });
-    }
 </script>
 
 </body>
