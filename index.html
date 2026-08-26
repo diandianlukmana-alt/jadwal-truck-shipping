@@ -168,7 +168,7 @@
     </div>
 
     <div id="loadingInfo" class="loading">Sedang memuat data...</div>
-    <div id="statsSummary" class="stats">📋 Menampilkan 0 pengiriman material</div>
+    <div id="statsSummary" class="stats">📋 Menampilkan 0 pemakaian truck dan 0 rit</div>
 
     <div class="table-responsive">
         <table>
@@ -246,7 +246,11 @@
         const tbody = document.getElementById('isiTabel');
         const stats = document.getElementById('statsSummary');
 
-        if (!tglInput) return;
+        if (!tglInput) {
+            stats.innerHTML = `📋 Menampilkan 0 pemakaian truck dan 0 rit`;
+            tbody.innerHTML = `<tr><td colspan="4" class="no-data">Silakan pilih tanggal terlebih dahulu.</td></tr>`;
+            return;
+        }
 
         const filtered = databaseJadwal.filter(item => {
             const tglData = item.tanggal.replace(/[\/\-]/g, '').trim();
@@ -255,7 +259,12 @@
         });
 
         tbody.innerHTML = '';
-        stats.innerHTML = `📋 Menampilkan ${filtered.length} pengiriman material`;
+
+        // Menghitung jumlah pemakaian truck dan akumulasi total rit
+        const totalPemakaianTruck = filtered.length;
+        const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 0), 0);
+
+        stats.innerHTML = `📋 Menampilkan <b>${totalPemakaianTruck}</b> pemakaian truck dan <b>${totalRit}</b> rit`;
 
         if (filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="4" class="no-data">Tidak ada jadwal pengiriman pada tanggal ini.</td></tr>`;
