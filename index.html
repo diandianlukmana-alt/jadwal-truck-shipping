@@ -21,8 +21,8 @@
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            /* Latar belakang gambar truk dengan overlay putih transparan */
-            background: linear-gradient(rgba(244, 246, 249, 0.82), rgba(244, 246, 249, 0.82)), 
+            /* Latar belakang gambar truk yang jelas dan terang */
+            background: linear-gradient(rgba(244, 246, 249, 0.1), rgba(244, 246, 249, 0.1)), 
                         url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-primary);
@@ -45,17 +45,32 @@
             backdrop-filter: blur(6px);
         }
 
-        h2 {
-            margin-top: 0;
-            color: var(--text-primary);
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--text-primary);
             font-size: 22px;
             font-weight: 700;
             letter-spacing: 0.3px;
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .logo-inoac {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
         }
 
         .filter-container {
@@ -72,6 +87,10 @@
         @media (max-width: 600px) {
             .filter-container {
                 grid-template-columns: 1fr;
+            }
+            .header-title {
+                flex-direction: column-reverse;
+                align-items: flex-start;
             }
         }
 
@@ -172,7 +191,11 @@
 <body>
 
 <div class="container">
-    <h2>🚚 JADWAL TRUCK DCM & HITOSHI</h2>
+    <div class="header-title">
+        <h2>🚚 JADWAL TRUCK DCM & HITOSHI</h2>
+        <!-- Logo INOAC langsung dapat dimuat online -->
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/INOAC_logo.svg" alt="INOAC Logo" class="logo-inoac" onerror="this.src='https://www.inoac.co.jp/en/assets/img/common/logo.svg'">
+    </div>
     
     <div class="filter-container">
         <div>
@@ -190,7 +213,7 @@
     </div>
 
     <div id="loadingInfo" class="loading">Sedang memuat data...</div>
-    <div id="statsSummary" class="stats">📋 Menampilkan 0 pemakaian truck dan 0 rit</div>
+    <div id="statsSummary" class="stats">📋 Total: 0 rit</div>
 
     <div class="table-responsive">
         <table>
@@ -269,7 +292,7 @@
         const stats = document.getElementById('statsSummary');
 
         if (!tglInput) {
-            stats.innerHTML = `📋 Menampilkan 0 pemakaian truck dan 0 rit`;
+            stats.innerHTML = `📋 Total: <b>0</b> rit`;
             tbody.innerHTML = `<tr><td colspan="4" class="no-data">Silakan pilih tanggal terlebih dahulu.</td></tr>`;
             return;
         }
@@ -282,10 +305,9 @@
 
         tbody.innerHTML = '';
 
-        const totalPemakaianTruck = filtered.length;
         const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 0), 0);
 
-        stats.innerHTML = `📋 Menampilkan <b>${totalPemakaianTruck}</b> pemakaian truck dan <b>${totalRit}</b> rit`;
+        stats.innerHTML = `📋 Total: <b>${totalRit}</b> rit`;
 
         if (filtered.length === 0) {
             tbody.innerHTML = `<tr><td colspan="4" class="no-data">Tidak ada jadwal pengiriman pada tanggal ini.</td></tr>`;
