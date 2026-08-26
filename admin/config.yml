@@ -12,11 +12,27 @@ collections:
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - {label: "Tanggal", name: "tanggal", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false}
-      - {label: "Jadwal Truck", name: "truck", widget: "string", default: "DCM"}
-      - {label: "Kategori", name: "kategori", widget: "select", options: ["Pengiriman Finishgoods", "Pengiriman Raw Material", "Lainnya"]}
-      - {label: "Tujuan", name: "tujuan", widget: "string"}
-      - {label: "Jumlah Rit", name: "rit", widget: "number", value_type: "int", default: 1}
+      - label: "Tanggal"
+        name: "tanggal"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+      - label: "Jadwal Truck"
+        name: "truck"
+        widget: "string"
+        default: "DCM"
+      - label: "Kategori"
+        name: "kategori"
+        widget: "string"
+      - label: "Tujuan"
+        name: "tujuan"
+        widget: "string"
+      - label: "Jumlah Rit"
+        name: "rit"
+        widget: "number"
+        value_type: "int"
+        default: 1
 
   - name: "jadwal_hitoshi"
     label: "Jadwal HITOSHI"
@@ -24,8 +40,24 @@ collections:
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - {label: "Tanggal", name: "tanggal", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false}
-      - {label: "Jadwal Truck", name: "truck", widget: "string", default: "HITOSHI"}
-      - {label: "Kategori", name: "kategori", widget: "select", options: ["Pengiriman Finishgoods", "Pengiriman Raw Material", "Lainnya"]}
-      - {label: "Tujuan", name: "tujuan", widget: "string"}
-      - {label: "Jumlah Rit", name: "rit", widget: "number", value_type: "int", default: 1}
+      - label: "Tanggal"
+        name: "tanggal"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+      - label: "Jadwal Truck"
+        name: "truck"
+        widget: "string"
+        default: "HITOSHI"
+      - label: "Kategori"
+        name: "kategori"
+        widget: "string"
+      - label: "Tujuan"
+        name: "tujuan"
+        widget: "string"
+      - label: "Jumlah Rit"
+        name: "rit"
+        widget: "number"
+        value_type: "int"
+        default: 1
