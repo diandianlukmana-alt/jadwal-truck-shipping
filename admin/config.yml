@@ -20,14 +20,17 @@ collections:
         time_format: false
       - label: "Jadwal Truck"
         name: "truck"
-        widget: "string"
+        widget: "select"
+        options: ["DCM", "HITOSHI"]
         default: "DCM"
       - label: "Kategori"
         name: "kategori"
-        widget: "string"
+        widget: "select"
+        options: ["Pengiriman Finishgoods", "Pengambilan Compond"]
       - label: "Tujuan"
         name: "tujuan"
-        widget: "string"
+        widget: "select"
+        options: ["PT. SIM CIKARANG (LOCAL)", "PT. SIM TAMBUN (EXPORT)", "PT. IRC RUBBER"]
       - label: "Jumlah Rit"
         name: "rit"
         widget: "number"
@@ -48,14 +51,17 @@ collections:
         time_format: false
       - label: "Jadwal Truck"
         name: "truck"
-        widget: "string"
+        widget: "select"
+        options: ["DCM", "HITOSHI"]
         default: "HITOSHI"
       - label: "Kategori"
         name: "kategori"
-        widget: "string"
+        widget: "select"
+        options: ["Pengiriman Finishgoods", "Pengambilan Compond"]
       - label: "Tujuan"
         name: "tujuan"
-        widget: "string"
+        widget: "select"
+        options: ["PT. SIM CIKARANG (LOCAL)", "PT. SIM TAMBUN (EXPORT)", "PT. IRC RUBBER"]
       - label: "Jumlah Rit"
         name: "rit"
         widget: "number"
