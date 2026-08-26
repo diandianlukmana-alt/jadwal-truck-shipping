@@ -8,43 +8,51 @@
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         :root {
-            --background: #0b1329;
-            --surface: #131c38;
-            --filter-bg: #1a264a;
-            --border: #263663;
-            --text: #ffffff;
-            --text-secondary: #94a3b8;
-            --loading-bg: #1e293b;
+            --surface: rgba(255, 255, 255, 0.94);
+            --filter-bg: #f8fafc;
+            --border: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #2563eb;
+            --table-header-bg: #f1f5f9;
+            --loading-bg: #e0f2fe;
+            --loading-text: #0369a1;
         }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--background);
-            color: var(--text);
+            /* Latar belakang gambar truk dengan overlay putih transparan */
+            background: linear-gradient(rgba(244, 246, 249, 0.82), rgba(244, 246, 249, 0.82)), 
+                        url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-primary);
             margin: 0;
-            padding: 20px;
+            padding: 30px 20px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .container {
             width: 100%;
             max-width: 850px;
             background: var(--surface);
-            padding: 24px;
+            padding: 28px;
             border-radius: 12px;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(6px);
         }
 
         h2 {
             margin-top: 0;
-            color: #ffffff;
-            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            border-bottom: 2px solid #f1f5f9;
             padding-bottom: 16px;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -52,7 +60,7 @@
 
         .filter-container {
             background: var(--filter-bg);
-            padding: 16px;
+            padding: 18px;
             border-radius: 8px;
             border: 1px solid var(--border);
             display: grid;
@@ -72,7 +80,7 @@
             display: block;
             margin-bottom: 8px;
             font-size: 14px;
-            color: #ffffff;
+            color: var(--text-primary);
         }
 
         select, input[type="date"] {
@@ -80,15 +88,17 @@
             padding: 10px 14px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            font-size: 15px;
-            background-color: var(--surface);
-            color: #ffffff;
+            font-size: 14px;
+            background-color: #ffffff;
+            color: var(--text-primary);
             box-sizing: border-box;
             outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         select:focus, input[type="date"]:focus {
-            border-color: #3b82f6;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         .stats {
@@ -98,10 +108,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            font-weight: 500;
         }
 
         .table-responsive {
             overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #ffffff;
         }
 
         table {
@@ -110,24 +124,30 @@
         }
 
         th {
-            background-color: var(--filter-bg);
+            background-color: var(--table-header-bg);
             padding: 12px 16px;
             text-align: left;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: #ffffff;
-            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
             padding: 14px 16px;
             font-size: 14px;
             border-bottom: 1px solid var(--border);
-            color: #e2e8f0;
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
         }
 
         tr:hover {
-            background-color: rgba(255, 255, 255, 0.03);
+            background-color: #f8fafc;
         }
 
         .no-data {
@@ -139,20 +159,20 @@
 
         .loading {
             text-align: center;
-            padding: 12px;
-            color: #38bdf8;
+            padding: 10px;
+            color: var(--loading-text);
             font-size: 13px;
             background: var(--loading-bg);
             border-radius: 6px;
             margin-bottom: 15px;
-            border: 1px solid var(--border);
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📅 JADWAL TRUCK DCM & HITOSHI</h2>
+    <h2>🚚 JADWAL TRUCK DCM & HITOSHI</h2>
     
     <div class="filter-container">
         <div>
@@ -262,7 +282,6 @@
 
         tbody.innerHTML = '';
 
-        // Menghitung jumlah pemakaian truck dan akumulasi total rit
         const totalPemakaianTruck = filtered.length;
         const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 0), 0);
 
@@ -287,7 +306,6 @@
 
     window.onload = gantiSourceData;
 
-    // Menangani redirect pendaftaran Netlify Identity
     if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {
             if (!user) {
