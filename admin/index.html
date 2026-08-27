@@ -1,13 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Content Management System</title>
+  <title>Content Manager</title>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-  <!-- Decap / Netlify CMS Script -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    CMS.init({
+      config: {
+        backend: {
+          name: 'git-gateway',
+          branch: 'main'
+        },
+        media_folder: 'images',
+        public_folder: '/images',
+        collections: [
+          {
+            name: 'jadwal_dcm',
+            label: 'Jadwal DCM',
+            folder: 'data/dcm',
+            create: true,
+            slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+            fields: [
+              { label: 'Tanggal', name: 'tanggal', widget: 'datetime', format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false },
+              { label: 'Jadwal Truck', name: 'truck', widget: 'select', options: ['DCM', 'HITOSHI'], default: 'DCM' },
+              { label: 'Kategori', name: 'kategori', widget: 'select', options: ['Pengiriman Finishgoods', 'Pengambilan Compond'] },
+              {
+                label: 'Tujuan',
+                name: 'tujuan',
+                widget: 'select',
+                options: [
+                  'PT. SIM CIKARANG (LOCAL)',
+                  'PT. SIM TAMBUN (EXPORT)',
+                  'PT. SIM TAMBUN (EXPORT) & PT. SIM CIKARANG (LOCAL)',
+                  'PT. IRC RUBBER'
+                ]
+              },
+              { label: 'Jumlah Rit', name: 'rit', widget: 'number', value_type: 'int', default: 1 }
+            ]
+          },
+          {
+            name: 'jadwal_hitoshi',
+            label: 'Jadwal HITOSHI',
+            folder: 'data/hitoshi',
+            create: true,
+            slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+            fields: [
+              { label: 'Tanggal', name: 'tanggal', widget: 'datetime', format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false },
+              { label: 'Jadwal Truck', name: 'truck', widget: 'select', options: ['DCM', 'HITOSHI'], default: 'HITOSHI' },
+              { label: 'Kategori', name: 'kategori', widget: 'select', options: ['Pengiriman Finishgoods', 'Pengambilan Compond'] },
+              {
+                label: 'Tujuan',
+                name: 'tujuan',
+                widget: 'select',
+                options: [
+                  'PT. SIM CIKARANG (LOCAL)',
+                  'PT. SIM TAMBUN (EXPORT)',
+                  'PT. SIM TAMBUN (EXPORT) & PT. SIM CIKARANG (LOCAL)',
+                  'PT. IRC RUBBER'
+                ]
+              },
+              { label: 'Jumlah Rit', name: 'rit', widget: 'number', value_type: 'int', default: 1 }
+            ]
+          }
+        ]
+      }
+    });
+  </script>
 </body>
 </html>
