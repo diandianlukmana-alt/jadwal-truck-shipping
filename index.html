@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JADWAL TRUCK DCM & HITOSHI</title>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         :root {
             --surface: rgba(255, 255, 255, 0.95);
@@ -157,7 +156,6 @@
             font-weight: 500;
         }
 
-        /* Desain Kotak Catatan Penting */
         .note-box {
             background-color: var(--note-bg);
             border: 1px solid var(--note-border);
@@ -235,7 +233,6 @@
         </table>
     </div>
 
-    <!-- Kotak Catatan Penting -->
     <div class="note-box">
         <div class="note-title">📌 Catatan Penting:</div>
         <ol>
@@ -250,60 +247,38 @@
     const GITHUB_REPO = "diandianlukmana-alt/jadwal-truck-shipping";
     let databaseJadwal = [];
 
-    function formatTanggal(str) {
-        if (!str) return '';
-        const clean = str.trim().replace(/['"]/g, '');
-        if (clean.length >= 10) return clean.substring(0, 10);
-        return clean;
-    }
-
-    function parseFrontmatter(text) {
-        const item = {};
-        const lines = text.split('\n');
-        let inFrontmatter = false;
-
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (trimmed === '---') {
-                inFrontmatter = !inFrontmatter;
-                return;
-            }
-            if (inFrontmatter) {
-                const parts = trimmed.split(':');
-                if (parts.length >= 2) {
-                    const key = parts[0].trim().toLowerCase();
-                    const val = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '');
-                    item[key] = val;
-                }
-            }
-        });
-
-        return {
-            tanggal: formatTanggal(item.tanggal),
-            truck: item.truck || 'DCM',
-            kategori: item.kategori || '',
-            tujuan: item.tujuan || '',
-            rit: parseInt(item.rit) || 1
-        };
-    }
-
-    async function ambilDataFolder(folder) {
+    // Fungsi membaca data dari file TXT
+    async function ambilDataTxt(namaFile) {
         try {
-            const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${folder}`;
+            // Ditambahkan timestamp ?t= agar browser selalu mengambil data terbaru tanpa cache
+            const url = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${namaFile}?t=${new Date().getTime()}`;
             const res = await fetch(url);
             if (!res.ok) return [];
-            const files = await res.json();
             
-            const promises = files
-                .filter(file => file.name.endsWith('.md'))
-                .map(async file => {
-                    const contentRes = await fetch(file.download_url);
-                    const text = await contentRes.text();
-                    return parseFrontmatter(text);
-                });
+            const text = await res.text();
+            const lines = text.split('\n');
+            const data = [];
 
-            return await Promise.all(promises);
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) return; // Abaikan baris kosong atau komentar
+
+                // Split data berdasarkan pemisah tanda pipa |
+                const parts = trimmed.split('|').map(p => p.trim());
+                if (parts.length >= 5) {
+                    data.push({
+                        tanggal: parts[0],
+                        truck: parts[1],
+                        kategori: parts[2],
+                        tujuan: parts[3],
+                        rit: parseInt(parts[4]) || 1
+                    });
+                }
+            });
+
+            return data;
         } catch (e) {
+            console.error("Gagal membaca " + namaFile, e);
             return [];
         }
     }
@@ -314,8 +289,8 @@
 
         try {
             const [dcmData, hitoshiData] = await Promise.all([
-                ambilDataFolder('data/dcm'),
-                ambilDataFolder('data/hitoshi')
+                ambilDataTxt('data_dcm.txt'),
+                ambilDataTxt('data_hitoshi.txt')
             ]);
             databaseJadwal = [...dcmData, ...hitoshiData];
         } catch (e) {
