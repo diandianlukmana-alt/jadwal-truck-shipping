@@ -1,7 +1,7 @@
 ---
-tanggal: 2026-08-30
+tanggal: 2026-08-31
 truck: DCM
-kategori: Pengambilan Compond
-tujuan: PT. IRC RUBBER
+kategori: Pengiriman Finishgoods
+tujuan: PT. SIM CIKARANG (LOCAL)
 rit: 1
 ---
