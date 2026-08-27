@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: diandianlukmana-alt/jadwal-truck-shipping
   branch: main
 
 media_folder: "images"
