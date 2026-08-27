@@ -188,6 +188,14 @@
         .note-box li:last-child {
             margin-bottom: 0;
         }
+        
+        .tgl-badge {
+            font-size: 12px;
+            color: #475569;
+            font-weight: normal;
+            display: block;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
@@ -238,7 +246,6 @@
         <ol>
             <li>Pengiriman ke PT. SUZUKI maximal jam 07:00 wib (Pagi) truck sudah berangkat.</li>
             <li>Pic Control: Dian Lukmana (PPIC).</li>
-            <li>-</li>
         </ol>
     </div>
 </div>
@@ -247,9 +254,40 @@
     const GITHUB_REPO = "diandianlukmana-alt/jadwal-truck-shipping";
     let databaseJadwal = [];
 
+    // Fungsi standarisasi format tanggal ke YYYY-MM-DD
+    function normalisasiTanggal(strTgl) {
+        if (!strTgl) return '';
+        const cleanStr = strTgl.trim();
+        
+        // Format DD-MM-YYYY -> YYYY-MM-DD
+        if (cleanStr.includes('-')) {
+            const parts = cleanStr.split('-');
+            if (parts[0].length === 2 && parts[2].length === 4) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+        }
+        
+        // Format DD/MM/YYYY -> YYYY-MM-DD
+        if (cleanStr.includes('/')) {
+            const parts = cleanStr.split('/');
+            if (parts[0].length === 2 && parts[2].length === 4) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+        }
+
+        return cleanStr;
+    }
+
+    // Format tampilan tanggal ke DD-MM-YYYY
+    function formatKeTanggalIndo(yyyy_mm_dd) {
+        if (!yyyy_mm_dd || !yyyy_mm_dd.includes('-')) return yyyy_mm_dd;
+        const [y, m, d] = yyyy_mm_dd.split('-');
+        return `${d}-${m}-${y}`;
+    }
+
     async function ambilDataTxt(namaFile) {
         try {
-            const url = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${namaFile}?t=${new Date().getTime()}`;
+            const url = `https://cdn.jsdelivr.net/gh/${GITHUB_REPO}@main/${namaFile}?t=${new Date().getTime()}`;
             const res = await fetch(url);
             if (!res.ok) return [];
             
@@ -264,7 +302,7 @@
                 const parts = trimmed.split('|').map(p => p.trim());
                 if (parts.length >= 5) {
                     data.push({
-                        tanggal: parts[0],
+                        tanggal: normalisasiTanggal(parts[0]),
                         truck: parts[1],
                         kategori: parts[2],
                         tujuan: parts[3],
@@ -282,7 +320,7 @@
 
     async function muatSemuaData() {
         const loadingEl = document.getElementById('loadingInfo');
-        loadingEl.style.display = 'block';
+        if (loadingEl) loadingEl.style.display = 'block';
 
         try {
             const [dcmData, hitoshiData] = await Promise.all([
@@ -294,7 +332,7 @@
             console.error(e);
         }
 
-        loadingEl.style.display = 'none';
+        if (loadingEl) loadingEl.style.display = 'none';
 
         const inputTgl = document.getElementById('pilihTanggal');
         if (!inputTgl.value) {
@@ -341,7 +379,10 @@
         filtered.forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><b>${item.truck}</b></td>
+                <td>
+                    <b>${item.truck}</b>
+                    <span class="tgl-badge">📅 ${formatKeTanggalIndo(item.tanggal)}</span>
+                </td>
                 <td>${item.kategori}</td>
                 <td><b>${item.tujuan}</b></td>
                 <td>${item.rit}</td>
