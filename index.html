@@ -291,7 +291,6 @@
 </div>
 
 <script>
-    const GITHUB_REPO = "diandianlukmana-alt/jadwal-truck-shipping";
     let databaseJadwal = [];
 
     function cetakPDF() {
@@ -327,7 +326,8 @@
 
     async function ambilDataTxt(namaFile) {
         try {
-            const url = `https://cdn.jsdelivr.net/gh/${GITHUB_REPO}@main/${namaFile}?t=${new Date().getTime()}`;
+            // Mengambil file txt lokal menggunakan relative path
+            const url = `./${namaFile}?t=${new Date().getTime()}`;
             const res = await fetch(url);
             if (!res.ok) return [];
             
@@ -340,12 +340,14 @@
                 if (!trimmed || trimmed.startsWith('#')) return;
 
                 const parts = trimmed.split('|').map(p => p.trim());
-                if (parts.length >= 5) {
+                
+                // Menerima data minimal 4 kolom
+                if (parts.length >= 4) {
                     data.push({
                         tanggal: normalisasiTanggal(parts[0]),
-                        truck: parts[1],
-                        kategori: parts[2],
-                        tujuan: parts[3],
+                        truck: parts[1] || 'DCM',
+                        kategori: parts[2] || '-',
+                        tujuan: parts[3] || '-',
                         rit: parseInt(parts[4]) || 1
                     });
                 }
