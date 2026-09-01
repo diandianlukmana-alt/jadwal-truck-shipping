@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JADWAL DELIVERY DCM</title>
-    <!-- Library QR Code JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>JADWAL TRUCK DCM & HITOSHI</title>
     <style>
         :root {
             --surface: rgba(255, 255, 255, 0.95);
@@ -24,9 +22,8 @@
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            /* Latar belakang menggunakan foto truk DCM lokal */
-            background: linear-gradient(rgba(15, 23, 42, 0.35), rgba(15, 23, 42, 0.35)), 
-                        url('./truck-dcm.jpg') no-repeat center center fixed;
+            background: linear-gradient(rgba(244, 246, 249, 0.15), rgba(244, 246, 249, 0.15)), 
+                        url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-primary);
             margin: 0;
@@ -46,7 +43,6 @@
             border: 1px solid var(--border);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
             backdrop-filter: blur(8px);
-            position: relative;
         }
 
         .header-title {
@@ -56,12 +52,6 @@
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 16px;
             margin-bottom: 20px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: center;
         }
 
         h2 {
@@ -91,33 +81,21 @@
             background-color: #15803d;
         }
 
-        .btn-gps {
-            background-color: #0284c7;
-            color: white;
-            text-decoration: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background-color 0.2s;
-        }
-
-        .btn-gps:hover {
-            background-color: #0369a1;
-        }
-
         .filter-container {
             background: var(--filter-bg);
             padding: 18px;
             border-radius: 8px;
             border: 1px solid var(--border);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 16px;
             margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .filter-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         label {
@@ -127,7 +105,7 @@
             font-size: 14px;
         }
 
-        select, input[type="date"], input[type="month"] {
+        select, input[type="date"] {
             width: 100%;
             padding: 10px 14px;
             border: 1px solid var(--border);
@@ -144,10 +122,6 @@
             color: var(--text-secondary);
             margin-bottom: 16px;
             font-weight: 500;
-            background: #f1f5f9;
-            padding: 10px 14px;
-            border-radius: 6px;
-            border-left: 4px solid var(--accent-color);
         }
 
         .table-responsive {
@@ -230,16 +204,16 @@
             margin-bottom: 4px;
         }
 
+        .note-box li:last-child {
+            margin-bottom: 0;
+        }
+        
         .tgl-badge {
             font-size: 12px;
             color: #475569;
             font-weight: normal;
             display: block;
             margin-top: 2px;
-        }
-
-        .qr-print-container {
-            display: none;
         }
 
         @media print {
@@ -253,36 +227,12 @@
                 max-width: 100% !important;
                 padding: 0 !important;
             }
-            .filter-container, .action-buttons, .loading {
+            .filter-container, .btn-pdf, .loading {
                 display: none !important;
             }
             .note-box {
                 border-left: 3px solid #000 !important;
                 background-color: #fff !important;
-            }
-            .qr-print-container {
-                display: flex !important;
-                flex-direction: column;
-                align-items: center;
-                position: absolute;
-                top: 0px;
-                right: 0px;
-                text-align: center;
-            }
-            .qr-print-container img, .qr-print-container canvas {
-                width: 75px !important;
-                height: 75px !important;
-            }
-            .qr-text {
-                font-size: 9px;
-                font-weight: 600;
-                color: #334155;
-                margin-top: 4px;
-                max-width: 90px;
-                line-height: 1.1;
-            }
-            .header-title {
-                padding-right: 100px;
             }
         }
     </style>
@@ -290,41 +240,23 @@
 <body>
 
 <div class="container">
-    <!-- QR Code khusus cetak PDF -->
-    <div class="qr-print-container">
-        <div id="qrcode"></div>
-        <div class="qr-text">Scan disini untuk melihat jadwal via web</div>
-    </div>
-
     <div class="header-title">
-        <h2>🚚 JADWAL DELIVERY DCM</h2>
-        <div class="action-buttons">
-            <a href="https://hita.oslog.id/#/app/maps-monitoring?name=map" target="_blank" class="btn-gps">📡 Lacak GPS</a>
-            <button class="btn-pdf" onclick="cetakPDF()">🖨️ Cetak / PDF</button>
-        </div>
+        <h2>🚚 JADWAL TRUCK DCM & HITOSHI</h2>
+        <button class="btn-pdf" onclick="cetakPDF()">🖨️ Cetak / PDF</button>
     </div>
     
     <div class="filter-container">
         <div>
             <label for="pilihTruck">Pilih Truck :</label>
             <select id="pilihTruck" onchange="filterData()">
+                <option value="semua">DCM & HITOSHI</option>
                 <option value="DCM">DCM</option>
+                <option value="HITOSHI">HITOSHI</option>
             </select>
         </div>
         <div>
-            <label for="pilihMode">Mode Laporan:</label>
-            <select id="pilihMode" onchange="gantiModeFilter()">
-                <option value="harian">Harian (Per Tanggal)</option>
-                <option value="bulanan">Bulanan (1 Bulan Full)</option>
-            </select>
-        </div>
-        <div id="groupHarian">
-            <label for="pilihTanggal">Pilih Tanggal:</label>
+            <label for="pilihTanggal">Pilih tanggal untuk melihat jadwal:</label>
             <input type="date" id="pilihTanggal" onchange="filterData()">
-        </div>
-        <div id="groupBulanan" style="display: none;">
-            <label for="pilihBulan">Pilih Bulan & Tahun:</label>
-            <input type="month" id="pilihBulan" onchange="filterData()">
         </div>
     </div>
 
@@ -343,7 +275,7 @@
             </thead>
             <tbody id="isiTabel">
                 <tr>
-                    <td colspan="4" class="no-data">Silakan pilih tanggal atau bulan terlebih dahulu.</td>
+                    <td colspan="4" class="no-data">Silakan pilih tanggal terlebih dahulu.</td>
                 </tr>
             </tbody>
         </table>
@@ -361,40 +293,8 @@
 <script>
     let databaseJadwal = [];
 
-    const NAMA_BULAN = [
-        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-    ];
-
     function cetakPDF() {
-        const mode = document.getElementById('pilihMode').value;
-        const judulAsli = "JADWAL DELIVERY DCM";
-
-        if (mode === 'harian') {
-            const tgl = document.getElementById('pilihTanggal').value;
-            document.title = `${judulAsli} - ${tgl}`;
-        } else {
-            const bln = document.getElementById('pilihBulan').value;
-            document.title = `${judulAsli} - Laporan Bulanan ${bln}`;
-        }
-
         window.print();
-
-        setTimeout(() => {
-            document.title = judulAsli;
-        }, 1000);
-    }
-
-    function gantiModeFilter() {
-        const mode = document.getElementById('pilihMode').value;
-        if (mode === 'bulanan') {
-            document.getElementById('groupHarian').style.display = 'none';
-            document.getElementById('groupBulanan').style.display = 'block';
-        } else {
-            document.getElementById('groupHarian').style.display = 'block';
-            document.getElementById('groupBulanan').style.display = 'none';
-        }
-        filterData();
     }
 
     function normalisasiTanggal(strTgl) {
@@ -438,16 +338,15 @@
                 const trimmed = line.trim();
                 if (!trimmed || trimmed.startsWith('#')) return;
 
-                const separator = trimmed.includes(';') ? ';' : '|';
-                const parts = trimmed.split(separator).map(p => p.trim());
+                const parts = trimmed.split('|').map(p => p.trim());
                 
-                if (parts.length >= 3) {
+                if (parts.length >= 4) {
                     data.push({
                         tanggal: normalisasiTanggal(parts[0]),
-                        truck: 'DCM',
-                        kategori: parts[2] || parts[1] || 'Delivery Part Local',
-                        tujuan: parts[3] || parts[1] || '-',
-                        rit: parseInt(parts[4] || parts[3]) || 1
+                        truck: parts[1] || 'DCM',
+                        kategori: parts[2] || '-',
+                        tujuan: parts[3] || '-',
+                        rit: parseInt(parts[4]) || 1
                     });
                 }
             });
@@ -464,76 +363,56 @@
         if (loadingEl) loadingEl.style.display = 'block';
 
         try {
-            const [dcmData, ircData] = await Promise.all([
+            const [dcmData, hitoshiData] = await Promise.all([
                 ambilDataTxt('data_dcm.txt'),
-                ambilDataTxt('data_irc.txt')
+                ambilDataTxt('data_hitoshi.txt')
             ]);
-            databaseJadwal = [...dcmData, ...ircData];
+            databaseJadwal = [...dcmData, ...hitoshiData];
         } catch (e) {
             console.error(e);
         }
 
         if (loadingEl) loadingEl.style.display = 'none';
 
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        
         const inputTgl = document.getElementById('pilihTanggal');
-        const inputBln = document.getElementById('pilihBulan');
-        
-        if (!inputTgl.value) inputTgl.value = `${yyyy}-${mm}-${dd}`;
-        if (!inputBln.value) inputBln.value = `${yyyy}-${mm}`;
+        if (!inputTgl.value) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            inputTgl.value = `${yyyy}-${mm}-${dd}`;
+        }
 
         filterData();
     }
 
     function filterData() {
-        const mode = document.getElementById('pilihMode').value;
+        const tglInput = document.getElementById('pilihTanggal').value;
+        const filterTruck = document.getElementById('pilihTruck').value;
         const tbody = document.getElementById('isiTabel');
         const stats = document.getElementById('statsSummary');
 
-        let filtered = [];
-
-        if (mode === 'harian') {
-            const tglInput = document.getElementById('pilihTanggal').value;
-            if (!tglInput) {
-                stats.innerHTML = `📋 Total: <b>0</b> rit`;
-                tbody.innerHTML = `<tr><td colspan="4" class="no-data">Silakan pilih tanggal terlebih dahulu.</td></tr>`;
-                return;
-            }
-
-            filtered = databaseJadwal.filter(item => item.tanggal === tglInput);
-            
-            const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 1), 0);
-            stats.innerHTML = `📋 Total Harian: <b>${totalRit}</b> rit (${filtered.length} pengiriman)`;
-        } else {
-            const bulanInput = document.getElementById('pilihBulan').value;
-            if (!bulanInput) {
-                stats.innerHTML = `📋 Total: <b>0</b> rit`;
-                tbody.innerHTML = `<tr><td colspan="4" class="no-data">Silakan pilih bulan terlebih dahulu.</td></tr>`;
-                return;
-            }
-
-            const [thn, bln] = bulanInput.split('-');
-            const bulanTeks = NAMA_BULAN[parseInt(bln, 10) - 1];
-
-            filtered = databaseJadwal.filter(item => {
-                if (!item.tanggal || item.tanggal.length < 7) return false;
-                return item.tanggal.startsWith(bulanInput);
-            });
-
-            filtered.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
-
-            const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 1), 0);
-            stats.innerHTML = `🗓️ Laporan Bulanan DCM (<b>${bulanTeks} ${thn}</b>): Total <b>${totalRit}</b> rit (${filtered.length} pengiriman)`;
+        if (!tglInput) {
+            stats.innerHTML = `📋 Total: <b>0</b> rit`;
+            tbody.innerHTML = `<tr><td colspan="4" class="no-data">Silakan pilih tanggal terlebih dahulu.</td></tr>`;
+            return;
         }
 
+        const filtered = databaseJadwal.filter(item => {
+            const matchTanggal = (item.tanggal === tglInput);
+            let matchTruck = true;
+            if (filterTruck !== 'semua') {
+                matchTruck = (item.truck || '').toUpperCase().includes(filterTruck.toUpperCase());
+            }
+            return matchTanggal && matchTruck;
+        });
+
         tbody.innerHTML = '';
+        const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 0), 0);
+        stats.innerHTML = `📋 Total: <b>${totalRit}</b> rit`;
 
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="no-data">Tidak ada jadwal pengiriman truk DCM pada periode ini.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" class="no-data">Tidak ada jadwal pengiriman pada tanggal ini.</td></tr>`;
             return;
         }
 
@@ -541,29 +420,18 @@
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>
-                    <b>DCM</b>
+                    <b>${item.truck}</b>
                     <span class="tgl-badge">📅 ${formatKeTanggalIndo(item.tanggal)}</span>
                 </td>
                 <td>${item.kategori}</td>
                 <td><b>${item.tujuan}</b></td>
-                <td>${item.rit || 1}</td>
+                <td>${item.rit}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    window.onload = () => {
-        new QRCode(document.getElementById("qrcode"), {
-            text: window.location.href,
-            width: 75,
-            height: 75,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
-
-        muatSemuaData();
-    };
+    window.onload = muatSemuaData;
 </script>
 
 </body>
