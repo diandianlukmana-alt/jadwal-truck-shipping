@@ -24,8 +24,9 @@
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(rgba(244, 246, 249, 0.15), rgba(244, 246, 249, 0.15)), 
-                        url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
+            /* Latar belakang menggunakan foto truk DCM lokal */
+            background: linear-gradient(rgba(15, 23, 42, 0.35), rgba(15, 23, 42, 0.35)), 
+                        url('./truck-dcm.jpg') no-repeat center center fixed;
             background-size: cover;
             color: var(--text-primary);
             margin: 0;
@@ -437,7 +438,6 @@
                 const trimmed = line.trim();
                 if (!trimmed || trimmed.startsWith('#')) return;
 
-                // Format splitter titik koma (;) atau pipe (|)
                 const separator = trimmed.includes(';') ? ';' : '|';
                 const parts = trimmed.split(separator).map(p => p.trim());
                 
@@ -509,7 +509,7 @@
             const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 1), 0);
             stats.innerHTML = `📋 Total Harian: <b>${totalRit}</b> rit (${filtered.length} pengiriman)`;
         } else {
-            const bulanInput = document.getElementById('pilihBulan').value; // Format: "YYYY-MM"
+            const bulanInput = document.getElementById('pilihBulan').value;
             if (!bulanInput) {
                 stats.innerHTML = `📋 Total: <b>0</b> rit`;
                 tbody.innerHTML = `<tr><td colspan="4" class="no-data">Silakan pilih bulan terlebih dahulu.</td></tr>`;
@@ -524,7 +524,6 @@
                 return item.tanggal.startsWith(bulanInput);
             });
 
-            // Urutkan berdasarkan tanggal ascending
             filtered.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
 
             const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 1), 0);
