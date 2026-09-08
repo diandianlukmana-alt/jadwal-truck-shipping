@@ -15,4 +15,10 @@
 09/09/2026 | DCM | Pengambilan Compond | IRC RUBBER | 1
 10/09/2026 | DCM | Delivery Part Local dan Export | SUZUKI CIKARANG DAN TAMBUN | 1
 10/09/2026 | DCM | Pengambilan Compond | IRC RUBBER | 1
+11/09/2026 | DCM | Delivery Part Local | SUZUKI CIKARANG | 1
+12/09/2026 | DCM | Off | No Delivery |
+13/09/2026 | DCM | Off | No Delivery |
+14/09/2026 | DCM | Delivery Part Local dan Export | SUZUKI CIKARANG DAN TAMBUN | 1
+14/09/2026 | DCM | Pengambilan Compond | IRC RUBBER | 1
+
 
