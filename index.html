@@ -481,12 +481,18 @@
                 const parts = trimmed.split(separator).map(p => p.trim());
                 
                 if (parts.length >= 3) {
+                    let parsedRit = 1;
+                    const rawRit = parts[4] !== undefined ? parts[4] : parts[3];
+                    if (rawRit !== undefined && !isNaN(parseInt(rawRit, 10))) {
+                        parsedRit = parseInt(rawRit, 10);
+                    }
+
                     data.push({
                         tanggal: normalisasiTanggal(parts[0]),
                         truck: 'DCM',
                         kategori: parts[2] || parts[1] || 'Delivery Part Local',
                         tujuan: parts[3] || parts[1] || '-',
-                        rit: parseInt(parts[4] || parts[3]) || 1
+                        rit: parsedRit
                     });
                 }
             });
@@ -545,8 +551,10 @@
 
             filtered = databaseJadwal.filter(item => item.tanggal === tglInput);
             
-            const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 1), 0);
-            stats.innerHTML = `📋 Total Harian: <b>${totalRit}</b> rit (${filtered.length} pengiriman)`;
+            const totalRit = filtered.reduce((acc, curr) => acc + curr.rit, 0);
+            const pengirimanAktif = filtered.filter(item => item.rit > 0).length;
+            
+            stats.innerHTML = `📋 Total Harian: <b>${totalRit}</b> rit (${pengirimanAktif} pengiriman)`;
         } else {
             const bulanInput = document.getElementById('pilihBulan').value;
             if (!bulanInput) {
@@ -565,8 +573,10 @@
 
             filtered.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
 
-            const totalRit = filtered.reduce((acc, curr) => acc + (parseInt(curr.rit) || 1), 0);
-            stats.innerHTML = `🗓️ Laporan Bulanan DCM (<b>${bulanTeks} ${thn}</b>): Total <b>${totalRit}</b> rit (${filtered.length} pengiriman)`;
+            const totalRit = filtered.reduce((acc, curr) => acc + curr.rit, 0);
+            const pengirimanAktif = filtered.filter(item => item.rit > 0).length;
+
+            stats.innerHTML = `🗓️ Laporan Bulanan DCM (<b>${bulanTeks} ${thn}</b>): Total <b>${totalRit}</b> rit (${pengirimanAktif} pengiriman)`;
         }
 
         tbody.innerHTML = '';
@@ -585,7 +595,7 @@
                 </td>
                 <td>${item.kategori}</td>
                 <td><b>${item.tujuan}</b></td>
-                <td>${item.rit || 1}</td>
+                <td>${item.rit}</td>
             `;
             tbody.appendChild(tr);
         });
