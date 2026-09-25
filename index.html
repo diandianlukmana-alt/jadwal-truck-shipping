@@ -22,7 +22,6 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #f8fafc;
-            /* Latar belakang cerah dengan nuansa peta rute logistik */
             background-image: 
                 radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.08) 0%, transparent 70%),
                 linear-gradient(rgba(248, 250, 252, 0.85), rgba(248, 250, 252, 0.85)),
@@ -343,7 +342,7 @@
     <div class="header-section">
         <h2>🗺️ JADWAL DELIVERY DCM</h2>
         <div class="header-buttons">
-            <a href="https://maps.google.com" target="_blank" class="btn btn-gps">📍 Lacak GPS</a>
+            <a href="https://hita.oslog.id/#/app/dashboard-vehicle" target="_blank" class="btn btn-gps">📍 Lacak GPS</a>
             <button class="btn btn-add" onclick="bukaModalLogin()">➕ Buat Jadwal Truk</button>
             <button class="btn btn-pdf" onclick="unduhPDF()">📄 Cetak / PDF</button>
         </div>
@@ -447,6 +446,7 @@
                     <option value="Suzuki Cikarang">Suzuki Cikarang</option>
                     <option value="Suzuki Cikarang & Tambun">Suzuki Cikarang & Tambun</option>
                     <option value="Suzuki Tambun">Suzuki Tambun</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="inputJumlah">D: Jumlah Rit</label>
@@ -586,9 +586,18 @@
             : `📦 Total Harian: <b>${hasilFilter.length}</b> rit (${totalRitFormatted} pengiriman)`;
 
         hasilFilter.forEach(item => {
+            let tanggalBersih = item.tanggal;
+            if (tanggalBersih) {
+                const tglPart = String(tanggalBersih).split('T')[0];
+                const p = tglPart.split('-');
+                if (p.length === 3) {
+                    tanggalBersih = `${p[2]}-${p[1]}-${p[0]}`;
+                }
+            }
+
             const baris = document.createElement('tr');
             baris.innerHTML = `
-                <td><b style="color: #2563eb;">${item.truck}</b><br><span style="font-size:11px; color:var(--text-secondary);">📅 ${item.tanggal}</span></td>
+                <td><b style="color: #2563eb;">${item.truck}</b><br><span style="font-size:11px; color:var(--text-secondary);">📅 ${tanggalBersih}</span></td>
                 <td>${item.kategori}</td>
                 <td>${item.tujuan}</td>
                 <td><b style="color: #059669;">${item.jumlah}</b></td>
