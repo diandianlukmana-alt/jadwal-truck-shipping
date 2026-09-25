@@ -544,24 +544,32 @@
     }
 
     function normalkanTanggal(strTanggal) {
-        if (!strTanggal) return '';
-        let dateObj;
-        if (typeof strTanggal === 'string' && strTanggal.includes('T')) {
-            dateObj = new Date(strTanggal);
-        } else if (typeof strTanggal === 'string') {
-            const bersih = strTanggal.trim();
-            if (bersih.includes('/')) {
-                const p = bersih.split('/');
-                if (p.length === 3) return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
+    if (!strTanggal) return '';
+    
+    // Jika format dari input type="date" (YYYY-MM-DD)
+    let bersih = String(strTanggal).split('T')[0].trim();
+    
+    // Jika format DD/MM/YYYY atau DD-MM-YYYY
+    if (bersih.includes('/')) {
+        const p = bersih.split('/');
+        if (p.length === 3) {
+            // Ubah ke YYYYMMDD
+            return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
+        }
+    } else if (bersih.includes('-')) {
+        const p = bersih.split('-');
+        if (p.length === 3) {
+            // Jika format YYYY-MM-DD
+            if (p[0].length === 4) {
+                return `${p[0]}${p[1].padStart(2, '0')}${p[2].padStart(2, '0')}`;
             }
-            if (bersih.includes('-')) {
-                const p = bersih.split('-');
-                if (p.length === 3) {
-                    if (p[0].length === 4) return `${p[0]}${p[1].padStart(2, '0')}${p[2].padStart(2, '0')}`;
-                    return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
-                }
-            }
-            return bersih.replace(/[\/\-]/g, '');
+            // Jika format DD-MM-YYYY
+            return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
+        }
+    }
+    
+    return bersih.replace(/[\/\-]/g, '');
+}
         } else {
             dateObj = new Date(strTanggal);
         }
