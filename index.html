@@ -3,31 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JADWAL DELIVERY DCM</title>
+    <title>JADWAL DELIVERY DCM - Professional Dashboard</title>
     <!-- Library QR Code JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --surface: rgba(255, 255, 255, 0.95);
+            --surface: rgba(255, 255, 255, 0.92);
             --filter-bg: #f8fafc;
             --border: #e2e8f0;
-            --text-primary: #1e293b;
+            --text-primary: #0f172a;
             --text-secondary: #64748b;
             --accent-color: #2563eb;
             --table-header-bg: #f1f5f9;
-            --note-bg: #fffbef;
-            --note-border: #fef08a;
-            --note-text: #854d0e;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.55)), 
-                        url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            /* Latar belakang cerah dengan nuansa peta rute logistik */
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.08) 0%, transparent 70%),
+                linear-gradient(rgba(248, 250, 252, 0.85), rgba(248, 250, 252, 0.85)),
+                url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-primary);
             margin: 0;
-            padding: 20px 10px;
+            padding: 30px 15px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -37,12 +42,13 @@
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 900px;
             background: var(--surface);
-            backdrop-filter: blur(12px);
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(226, 232, 240, 0.8);
             border: 1px solid var(--border);
             position: relative;
             box-sizing: border-box;
@@ -53,66 +59,71 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--border);
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            gap: 10px;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            gap: 15px;
             flex-wrap: wrap;
         }
 
         h2 {
             margin: 0;
-            color: var(--text-primary);
-            font-size: 20px;
+            color: #1e293b;
+            font-size: 22px;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: 0.5px;
         }
 
         .header-buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .btn {
             border: none;
-            padding: 9px 14px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             font-size: 13px;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
         }
 
         .btn-gps {
-            background-color: var(--accent-color);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
         }
-        .btn-gps:hover { background-color: #1d4ed8; }
 
         .btn-pdf {
-            background-color: #059669;
+            background: linear-gradient(135deg, #059669, #047857);
             color: white;
         }
-        .btn-pdf:hover { background-color: #047857; }
 
         .btn-add {
-            background-color: #d97706;
+            background: linear-gradient(135deg, #d97706, #b45309);
             color: white;
         }
-        .btn-add:hover { background-color: #b45309; }
 
-        /* Modal / Form Input Admin Styling */
+        /* Modal Styling */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(5px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
@@ -124,54 +135,60 @@
             background: #ffffff;
             width: 100%;
             max-width: 450px;
-            padding: 24px;
-            border-radius: 10px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
             box-sizing: border-box;
         }
 
         .modal-card h3 {
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-size: 18px;
-            color: var(--text-primary);
+            color: #0f172a;
             border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
         }
 
         .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
             font-weight: 600;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             color: var(--text-secondary);
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 9px 12px;
+            padding: 11px 14px;
+            background: #f8fafc;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            color: #0f172a;
+            border-radius: 8px;
             font-size: 14px;
             box-sizing: border-box;
             outline: none;
+            transition: border-color 0.2s;
         }
 
         .form-group input:focus, .form-group select:focus {
-            border-color: var(--accent-color);
+            border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            background: #ffffff;
         }
 
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
         .btn-cancel {
@@ -184,22 +201,40 @@
             background-color: #2563eb;
             color: white;
         }
-        .btn-submit:hover { background-color: #1d4ed8; }
 
         .filter-section {
             background: var(--filter-bg);
-            padding: 16px;
-            border-radius: 8px;
+            padding: 18px;
+            border-radius: 12px;
             border: 1px solid var(--border);
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .filter-group {
             flex: 1;
             min-width: 180px;
+        }
+
+        .filter-group label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 10px 12px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: #0f172a;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
         }
 
         .last-update-info {
@@ -208,44 +243,50 @@
             margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             font-weight: 500;
         }
 
         .stats {
             font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
+            color: #1e40af;
+            margin-bottom: 15px;
             font-weight: 500;
-            background: #f1f5f9;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border-left: 4px solid var(--accent-color);
+            background: #eff6ff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+            border: 1px solid #dbeafe;
         }
 
         .table-responsive {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #ffffff;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 5px;
-            min-width: 500px;
+            min-width: 550px;
         }
 
         th, td {
-            padding: 12px 14px;
+            padding: 14px 16px;
             text-align: left;
             border-bottom: 1px solid var(--border);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         th {
             background-color: var(--table-header-bg);
             font-weight: 600;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
 
         tr:hover {
@@ -254,19 +295,20 @@
 
         .no-data {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             color: var(--text-secondary);
             font-style: italic;
         }
 
         .notes-section {
-            margin-top: 15px;
-            padding: 12px 16px;
-            background-color: var(--note-bg);
-            border: 1px solid var(--note-border);
-            border-radius: 8px;
-            font-size: 13px;
-            color: var(--note-text);
+            margin-top: 20px;
+            padding: 15px 18px;
+            background-color: #fffbeb;
+            border: 1px solid #fef08a;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #854d0e;
+            line-height: 1.5;
         }
 
         .qr-print-container { display: none; }
@@ -299,7 +341,7 @@
     </div>
 
     <div class="header-section">
-        <h2>🚚 JADWAL DELIVERY DCM</h2>
+        <h2>🗺️ JADWAL DELIVERY DCM</h2>
         <div class="header-buttons">
             <a href="https://maps.google.com" target="_blank" class="btn btn-gps">📍 Lacak GPS</a>
             <button class="btn btn-add" onclick="bukaModalLogin()">➕ Buat Jadwal Truk</button>
@@ -356,7 +398,7 @@
 
     <div class="notes-section">
         <strong>* Catatan Penting:</strong>
-        <ol>
+        <ol style="margin: 5px 0 0 15px; padding: 0;">
             <li>Pengiriman ke PT. SUZUKI maximal jam 07:00 wib (Pagi) truck sudah berangkat.</li>
             <li>Pic Control: Dian Lukmana (PPIC).</li>
         </ol>
@@ -416,9 +458,8 @@
 
 <script>
     // URL Web App Google Apps Script Anda
-    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxprJFXjLDuh6DoEDeovpVsc1EizVtajf5fyL1G6Gk3Mb7Q6PDjyYx7rrLfCWH8eGtL/exec';
+    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzfuhs0HKEXRFa7LcgUDzYzYRU9Tv6t996pPxNyCSWQCUscRUMP4TpcUeeOcZiysD03/exec';
 
-    // Password & Username Admin Sementara (Bisa diubah sesuai keinginan Anda)
     const ADMIN_USER = "admin";
     const ADMIN_PASS = "dian123";
 
@@ -472,7 +513,7 @@
         const jam = String(sekarang.getHours()).padStart(2, '0');
         const menit = String(sekarang.getMinutes()).padStart(2, '0');
         const detik = String(sekarang.getSeconds()).padStart(2, '0');
-        document.getElementById('lastUpdateText').innerText = `${tgl}/${sekarang.getMonth()+1}/${thn}, ${jam}:${menit}:${detik} WIB`;
+        document.getElementById('lastUpdateText').innerText = `${tgl} ${bln} ${thn}, ${jam}:${menit}:${detik} WIB`;
     }
 
     function normalkanTanggal(strTanggal) {
@@ -543,16 +584,15 @@
         hasilFilter.forEach(item => {
             const baris = document.createElement('tr');
             baris.innerHTML = `
-                <td><b>${item.truck}</b><br><span style="font-size:11px; color:#64748b;">📅 ${item.tanggal}</span></td>
+                <td><b style="color: #2563eb;">${item.truck}</b><br><span style="font-size:11px; color:var(--text-secondary);">📅 ${item.tanggal}</span></td>
                 <td>${item.kategori}</td>
                 <td>${item.tujuan}</td>
-                <td><b>${item.jumlah}</b></td>
+                <td><b style="color: #059669;">${item.jumlah}</b></td>
             `;
             isiTabel.appendChild(baris);
         });
     }
 
-    // Fungsi Modal Admin
     function bukaModalLogin() {
         document.getElementById('modalOverlay').style.display = 'flex';
         document.getElementById('stepLogin').style.display = 'block';
@@ -590,7 +630,6 @@
             return;
         }
 
-        // Format tanggal ke DD/MM/YYYY agar serasi dengan Google Sheet
         const pTgl = tglInput.split('-');
         const tanggalFormatted = `${pTgl[2]}/${pTgl[1]}/${pTgl[0]}`;
 
@@ -599,14 +638,12 @@
         btnSimpan.disabled = true;
 
         try {
-            // Mengirim data ke Google Apps Script (Metode POST atau GET parameter)
             const urlKirim = `${URL_APPS_SCRIPT}?action=tambah&tanggal=${encodeURIComponent(tanggalFormatted)}&kategori=${encodeURIComponent(katInput)}&tujuan=${encodeURIComponent(tujInput)}&jumlahRit=${encodeURIComponent(jmlInput)}`;
-            
             await fetch(urlKirim);
 
             alert("Jadwal berhasil disimpan ke Google Sheet!");
             tutupModal();
-            muatDataDariSheet(); // Refresh data otomatis di web
+            muatDataDariSheet();
         } catch (err) {
             console.error(err);
             alert("Gagal menyimpan data ke Google Sheet.");
