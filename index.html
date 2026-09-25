@@ -457,7 +457,7 @@
 </div>
 
 <script>
-    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwgIQ9g2oakhd_Oh2qUgWdP5cHl6Dapg4cT1sQR85-eGR6XcwokrUwR_di_knbj9hXb/exec';
+    const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz_EWWwqB4vvAaN867ZMPkhLbnqvENVEUAROIbxTQ6lyZzRPvKeIlGAQeZqttKYofMx/exec';
     const ADMIN_USER = "admin";
     const ADMIN_PASS = "dian123";
 
@@ -495,8 +495,8 @@
                 databaseKedatangan = hasil.data.map(item => ({
                     rowId: item.rowId,
                     tanggal: item.tanggal,
-                    truck: item.kategori || 'DCM',
-                    kategori: 'Delivery Part Export',
+                    truck: 'DCM',
+                    kategori: item.kategori,
                     tujuan: item.tujuan,
                     jumlah: item.jumlahRit
                 }));
@@ -519,8 +519,8 @@
                 databaseKedatangan = hasil.data.map(item => ({
                     rowId: item.rowId,
                     tanggal: item.tanggal,
-                    truck: item.kategori || 'DCM',
-                    kategori: 'Delivery Part Export',
+                    truck: 'DCM',
+                    kategori: item.kategori,
                     tujuan: item.tujuan,
                     jumlah: item.jumlahRit
                 }));
@@ -544,39 +544,24 @@
     }
 
     function normalkanTanggal(strTanggal) {
-    if (!strTanggal) return '';
-    
-    // Jika format dari input type="date" (YYYY-MM-DD)
-    let bersih = String(strTanggal).split('T')[0].trim();
-    
-    // Jika format DD/MM/YYYY atau DD-MM-YYYY
-    if (bersih.includes('/')) {
-        const p = bersih.split('/');
-        if (p.length === 3) {
-            // Ubah ke YYYYMMDD
-            return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
-        }
-    } else if (bersih.includes('-')) {
-        const p = bersih.split('-');
-        if (p.length === 3) {
-            // Jika format YYYY-MM-DD
-            if (p[0].length === 4) {
-                return `${p[0]}${p[1].padStart(2, '0')}${p[2].padStart(2, '0')}`;
+        if (!strTanggal) return '';
+        let bersih = String(strTanggal).split('T')[0].trim();
+        
+        if (bersih.includes('/')) {
+            const p = bersih.split('/');
+            if (p.length === 3) {
+                return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
             }
-            // Jika format DD-MM-YYYY
-            return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
+        } else if (bersih.includes('-')) {
+            const p = bersih.split('-');
+            if (p.length === 3) {
+                if (p[0].length === 4) {
+                    return `${p[0]}${p[1].padStart(2, '0')}${p[2].padStart(2, '0')}`;
+                }
+                return `${p[2]}${p[1].padStart(2, '0')}${p[0].padStart(2, '0')}`;
+            }
         }
-    }
-    
-    return bersih.replace(/[\/\-]/g, '');
-}
-        } else {
-            dateObj = new Date(strTanggal);
-        }
-        if (dateObj && !isNaN(dateObj.getTime())) {
-            return `${dateObj.getFullYear()}${String(dateObj.getMonth() + 1).padStart(2, '0')}${String(dateObj.getDate()).padStart(2, '0')}`;
-        }
-        return String(strTanggal);
+        return bersih.replace(/[\/\-]/g, '');
     }
 
     function filterData() {
@@ -620,9 +605,15 @@
             let tanggalBersih = item.tanggal;
             if (tanggalBersih) {
                 const tglPart = String(tanggalBersih).split('T')[0];
-                const p = tglPart.split('-');
-                if (p.length === 3) {
-                    tanggalBersih = `${p[2]}-${p[1]}-${p[0]}`;
+                if (tglPart.includes('/')) {
+                    const p = tglPart.split('/');
+                    if (p.length === 3) tanggalBersih = `${p[0]}-${p[1]}-${p[2]}`;
+                } else if (tglPart.includes('-')) {
+                    const p = tglPart.split('-');
+                    if (p.length === 3) {
+                        if (p[0].length === 4) tanggalBersih = `${p[2]}-${p[1]}-${p[0]}`;
+                        else tanggalBersih = `${p[0]}-${p[1]}-${p[2]}`;
+                    }
                 }
             }
 
@@ -679,10 +670,10 @@
                 const rowIdToEdit = document.getElementById('editRowId').value;
                 const dataTarget = databaseKedatangan.find(d => d.rowId == rowIdToEdit);
                 if (dataTarget) {
-                    let rawTgl = dataTarget.tanggal.split('T')[0];
+                    let rawTgl = String(dataTarget.tanggal).split('T')[0];
                     if (rawTgl.includes('/')) {
                         const p = rawTgl.split('/');
-                        rawTgl = `${p[2]}-${p[1]}-${p[0]}`;
+                        rawTgl = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
                     }
                     document.getElementById('inputTanggal').value = rawTgl;
                     document.getElementById('inputKeperluan').value = dataTarget.kategori;
