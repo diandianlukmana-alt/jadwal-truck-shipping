@@ -41,7 +41,7 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             background: var(--surface);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
@@ -101,19 +101,28 @@
             box-shadow: 0 6px 16px rgba(0,0,0,0.1);
         }
 
-        .btn-gps {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        .btn-gps { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; }
+        .btn-pdf { background: linear-gradient(135deg, #059669, #047857); color: white; }
+        .btn-add { background: linear-gradient(135deg, #d97706, #b45309); color: white; }
+        
+        .btn-action-edit {
+            background-color: #d97706;
             color: white;
+            padding: 5px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
         }
-
-        .btn-pdf {
-            background: linear-gradient(135deg, #059669, #047857);
+        .btn-action-delete {
+            background-color: #dc2626;
             color: white;
-        }
-
-        .btn-add {
-            background: linear-gradient(135deg, #d97706, #b45309);
-            color: white;
+            padding: 5px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+            margin-left: 4px;
+            border: none;
+            cursor: pointer;
         }
 
         /* Modal Styling */
@@ -190,16 +199,9 @@
             margin-top: 24px;
         }
 
-        .btn-cancel {
-            background-color: #e2e8f0;
-            color: #334155;
-        }
+        .btn-cancel { background-color: #e2e8f0; color: #334155; }
         .btn-cancel:hover { background-color: #cbd5e1; }
-
-        .btn-submit {
-            background-color: #2563eb;
-            color: white;
-        }
+        .btn-submit { background-color: #2563eb; color: white; }
 
         .filter-section {
             background: var(--filter-bg);
@@ -269,7 +271,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 550px;
+            min-width: 650px;
         }
 
         th, td {
@@ -288,16 +290,8 @@
             letter-spacing: 0.5px;
         }
 
-        tr:hover {
-            background-color: #f8fafc;
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
+        tr:hover { background-color: #f8fafc; }
+        .no-data { text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic; }
 
         .notes-section {
             margin-top: 20px;
@@ -315,7 +309,7 @@
         @media print {
             body { background: #ffffff !important; padding: 0; }
             .container { box-shadow: none; border: none; max-width: 100%; padding: 0; background: transparent; }
-            .filter-section, .header-buttons { display: none !important; }
+            .filter-section, .header-buttons, .col-aksi { display: none !important; }
             th { background-color: #e2e8f0 !important; -webkit-print-color-adjust: exact; }
             .qr-print-container {
                 display: flex !important;
@@ -343,7 +337,7 @@
         <h2>🗺️ JADWAL DELIVERY DCM</h2>
         <div class="header-buttons">
             <a href="https://hita.oslog.id/#/app/dashboard-vehicle" target="_blank" class="btn btn-gps">📍 Lacak GPS</a>
-            <button class="btn btn-add" onclick="bukaModalLogin()">➕ Buat Jadwal Truk</button>
+            <button class="btn btn-add" onclick="bukaModalLogin('tambah')">➕ Buat Jadwal Truk</button>
             <button class="btn btn-pdf" onclick="unduhPDF()">📄 Cetak / PDF</button>
         </div>
     </div>
@@ -382,11 +376,12 @@
                     <th>KATEGORI</th>
                     <th>TUJUAN</th>
                     <th>JUMLAH RIT</th>
+                    <th class="col-aksi">AKSI</th>
                 </tr>
             </thead>
             <tbody id="isiTabel">
                 <tr>
-                    <td colspan="4" class="no-data">Sabar ya, data sedang di muat...</td>
+                    <td colspan="5" class="no-data">Sabar ya, data sedang di muat...</td>
                 </tr>
             </tbody>
         </table>
@@ -401,7 +396,7 @@
     </div>
 </div>
 
-<!-- MODAL LOGIN & INPUT JADWAL BARU -->
+<!-- MODAL LOGIN & INPUT/EDIT JADWAL -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-card">
         <h3 id="modalTitle">🔒 Autorisasi Admin</h3>
@@ -422,8 +417,9 @@
             </div>
         </div>
 
-        <!-- Form Step 2: Input Jadwal -->
+        <!-- Form Step 2: Input / Edit Jadwal -->
         <div id="stepForm" style="display: none;">
+            <input type="hidden" id="editRowId">
             <div class="form-group">
                 <label for="inputTanggal">A: Tanggal</label>
                 <input type="date" id="inputTanggal">
@@ -454,20 +450,19 @@
             </div>
             <div class="modal-actions">
                 <button class="btn btn-cancel" onclick="tutupModal()">Batal</button>
-                <button class="btn btn-submit" id="btnSimpan" onclick="simpanJadwalBaru()">Simpan ke Sheet</button>
+                <button class="btn btn-submit" id="btnSimpan" onclick="simpanDataJadwal()">Simpan Perubahan</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // URL Web App Google Apps Script Anda
     const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz_EWWwqB4vvAaN867ZMPkhLbnqvENVEUAROIbxTQ6lyZzRPvKeIlGAQeZqttKYofMx/exec';
-
     const ADMIN_USER = "admin";
     const ADMIN_PASS = "dian123";
 
     let databaseKedatangan = [];
+    let modeAksiModal = 'tambah'; // 'tambah' atau 'edit'
     const NAMA_BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -483,6 +478,11 @@
         document.getElementById('inputTanggal').value = today;
 
         muatDataDariSheet();
+
+        // Auto-refresh data di latar belakang setiap 3 menit tanpa membuat lag/berkedip
+        setInterval(() => {
+            muatDataLatarBelakang();
+        }, 3 * 60 * 1000);
     });
 
     async function muatDataDariSheet() {
@@ -493,6 +493,7 @@
 
             if (hasil.status === "success" && hasil.data) {
                 databaseKedatangan = hasil.data.map(item => ({
+                    rowId: item.rowId,
                     tanggal: item.tanggal,
                     truck: item.kategori || 'DCM',
                     kategori: 'Delivery Part Export',
@@ -505,7 +506,29 @@
         } catch (err) {
             console.error(err);
             document.getElementById('lastUpdateText').innerText = "Gagal memuat data dari Google Sheet";
-            document.getElementById('isiTabel').innerHTML = `<tr><td colspan="4" class="no-data">Gagal memuat data. Periksa koneksi atau Apps Script.</td></tr>`;
+            document.getElementById('isiTabel').innerHTML = `<tr><td colspan="5" class="no-data">Gagal memuat data. Periksa koneksi atau Apps Script.</td></tr>`;
+        }
+    }
+
+    async function muatDataLatarBelakang() {
+        try {
+            const response = await fetch(URL_APPS_SCRIPT + '?t=' + new Date().getTime());
+            const hasil = await response.json();
+
+            if (hasil.status === "success" && hasil.data) {
+                databaseKedatangan = hasil.data.map(item => ({
+                    rowId: item.rowId,
+                    tanggal: item.tanggal,
+                    truck: item.kategori || 'DCM',
+                    kategori: 'Delivery Part Export',
+                    tujuan: item.tujuan,
+                    jumlah: item.jumlahRit
+                }));
+                updateWaktuLastUpdate();
+                filterData();
+            }
+        } catch (err) {
+            console.error("Gagal auto-refresh latar belakang:", err);
         }
     }
 
@@ -568,7 +591,7 @@
         isiTabel.innerHTML = '';
         if (hasilFilter.length === 0) {
             statsSummary.innerHTML = modeLaporan === 'semua' ? `📋 Menampilkan seluruh data pengiriman` : `📅 Tanggal: <b>${tanggalDipilih}</b> | Total: 0 pengiriman`;
-            isiTabel.innerHTML = `<tr><td colspan="4" class="no-data">Tidak ada jadwal pengiriman yang ditemukan.</td></tr>`;
+            isiTabel.innerHTML = `<tr><td colspan="5" class="no-data">Tidak ada jadwal pengiriman yang ditemukan.</td></tr>`;
             return;
         }
 
@@ -601,18 +624,29 @@
                 <td>${item.kategori}</td>
                 <td>${item.tujuan}</td>
                 <td><b style="color: #059669;">${item.jumlah}</b></td>
+                <td class="col-aksi">
+                    <button class="btn-action-edit" onclick="bukaModalEdit(${item.rowId})">✏️ Edit</button>
+                    <button class="btn-action-delete" onclick="hapusJadwal(${item.rowId})">🗑️ Hapus</button>
+                </td>
             `;
             isiTabel.appendChild(baris);
         });
     }
 
-    function bukaModalLogin() {
+    function bukaModalLogin(mode, rowId = null) {
+        modeAksiModal = mode;
         document.getElementById('modalOverlay').style.display = 'flex';
         document.getElementById('stepLogin').style.display = 'block';
         document.getElementById('stepForm').style.display = 'none';
-        document.getElementById('modalTitle').innerText = "🔒 Autorisasi Admin";
         document.getElementById('adminUser').value = '';
         document.getElementById('adminPass').value = '';
+
+        if (mode === 'tambah') {
+            document.getElementById('modalTitle').innerText = "🔒 Autorisasi Admin - Tambah Jadwal";
+        } else {
+            document.getElementById('modalTitle').innerText = "🔒 Autorisasi Admin - Edit Jadwal";
+            document.getElementById('editRowId').value = rowId;
+        }
     }
 
     function tutupModal() {
@@ -626,13 +660,38 @@
         if (u === ADMIN_USER && p === ADMIN_PASS) {
             document.getElementById('stepLogin').style.display = 'none';
             document.getElementById('stepForm').style.display = 'block';
-            document.getElementById('modalTitle').innerText = "➕ Buat Jadwal Truk Baru";
+
+            if (modeAksiModal === 'tambah') {
+                document.getElementById('modalTitle').innerText = "➕ Buat Jadwal Truk Baru";
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('inputTanggal').value = today;
+                document.getElementById('inputJumlah').value = '';
+            } else {
+                document.getElementById('modalTitle').innerText = "✏️ Revisi / Edit Jadwal Truk";
+                const rowIdToEdit = document.getElementById('editRowId').value;
+                const dataTarget = databaseKedatangan.find(d => d.rowId == rowIdToEdit);
+                if (dataTarget) {
+                    let rawTgl = dataTarget.tanggal.split('T')[0];
+                    if (rawTgl.includes('/')) {
+                        const p = rawTgl.split('/');
+                        rawTgl = `${p[2]}-${p[1]}-${p[0]}`;
+                    }
+                    document.getElementById('inputTanggal').value = rawTgl;
+                    document.getElementById('inputKeperluan').value = dataTarget.kategori;
+                    document.getElementById('inputTujuan').value = dataTarget.tujuan;
+                    document.getElementById('inputJumlah').value = dataTarget.jumlah;
+                }
+            }
         } else {
             alert("Username atau Password salah!");
         }
     }
 
-    async function simpanJadwalBaru() {
+    function bukaModalEdit(rowId) {
+        bukaModalLogin('edit', rowId);
+    }
+
+    async function simpanDataJadwal() {
         const tglInput = document.getElementById('inputTanggal').value;
         const katInput = document.getElementById('inputKeperluan').value;
         const tujInput = document.getElementById('inputTujuan').value.trim();
@@ -651,18 +710,44 @@
         btnSimpan.disabled = true;
 
         try {
-            const urlKirim = `${URL_APPS_SCRIPT}?action=tambah&tanggal=${encodeURIComponent(tanggalFormatted)}&kategori=${encodeURIComponent(katInput)}&tujuan=${encodeURIComponent(tujInput)}&jumlahRit=${encodeURIComponent(jmlInput)}`;
-            await fetch(urlKirim);
+            let urlKirim = '';
+            if (modeAksiModal === 'tambah') {
+                urlKirim = `${URL_APPS_SCRIPT}?action=tambah&tanggal=${encodeURIComponent(tanggalFormatted)}&kategori=${encodeURIComponent(katInput)}&tujuan=${encodeURIComponent(tujInput)}&jumlahRit=${encodeURIComponent(jmlInput)}`;
+            } else {
+                const rowId = document.getElementById('editRowId').value;
+                urlKirim = `${URL_APPS_SCRIPT}?action=edit&row=${rowId}&tanggal=${encodeURIComponent(tanggalFormatted)}&kategori=${encodeURIComponent(katInput)}&tujuan=${encodeURIComponent(tujInput)}&jumlahRit=${encodeURIComponent(jmlInput)}`;
+            }
 
-            alert("Jadwal berhasil disimpan ke Google Sheet!");
+            await fetch(urlKirim);
+            alert(modeAksiModal === 'tambah' ? "Jadwal berhasil ditambahkan!" : "Jadwal berhasil direvisi!");
             tutupModal();
             muatDataDariSheet();
         } catch (err) {
             console.error(err);
-            alert("Gagal menyimpan data ke Google Sheet.");
+            alert("Gagal memproses data ke Google Sheet.");
         } finally {
-            btnSimpan.innerText = "Simpan ke Sheet";
+            btnSimpan.innerText = "Simpan Perubahan";
             btnSimpan.disabled = false;
+        }
+    }
+
+    async function hapusJadwal(rowId) {
+        if (!confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) return;
+
+        const pwd = prompt("Masukkan password admin untuk menghapus data:");
+        if (pwd !== ADMIN_PASS) {
+            alert("Password salah! Penghapusan dibatalkan.");
+            return;
+        }
+
+        try {
+            const urlHapus = `${URL_APPS_SCRIPT}?action=hapus&row=${rowId}`;
+            await fetch(urlHapus);
+            alert("Jadwal berhasil dihapus.");
+            muatDataDariSheet();
+        } catch (err) {
+            console.error(err);
+            alert("Gagal menghapus data.");
         }
     }
 
