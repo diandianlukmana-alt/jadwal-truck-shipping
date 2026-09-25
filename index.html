@@ -430,16 +430,23 @@
                 <input type="date" id="inputTanggal">
             </div>
             <div class="form-group">
-                <label for="inputKategori">B: Kategori (Truck)</label>
-                <select id="inputKategori">
-                    <option value="DCM">DCM</option>
-                    <option value="EMIX">EMIX</option>
-                    <option value="IRC RUBBER">IRC RUBBER</option>
+                <label for="inputKeperluan">B: Keperluan</label>
+                <select id="inputKeperluan">
+                    <option value="Delivery Part Export">Delivery Part Export</option>
+                    <option value="Delivery Part Local">Delivery Part Local</option>
+                    <option value="Delivery Part Local & Export">Delivery Part Local & Export</option>
+                    <option value="No Delivery">No Delivery</option>
+                    <option value="Pengambilan Compond">Pengambilan Compond</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="inputTujuan">C: Tujuan / Material</label>
-                <input type="text" id="inputTujuan" placeholder="Contoh: SUZUKI TAMBUN">
+                <label for="inputTujuan">C: Tujuan</label>
+                <select id="inputTujuan">
+                    <option value="Irc Rubber">Irc Rubber</option>
+                    <option value="No Delivery">No Delivery</option>
+                    <option value="Suzuki Cikarang">Suzuki Cikarang</option>
+                    <option value="Suzuki Cikarang & Tambun">Suzuki Cikarang & Tambun</option>
+                    <option value="Suzuki Tambun">Suzuki Tambun</option>
             </div>
             <div class="form-group">
                 <label for="inputJumlah">D: Jumlah Rit</label>
@@ -618,7 +625,7 @@
 
     async function simpanJadwalBaru() {
         const tglInput = document.getElementById('inputTanggal').value;
-        const katInput = document.getElementById('inputKategori').value;
+        const katInput = document.getElementById('inputKeperluan').value;
         const tujInput = document.getElementById('inputTujuan').value.trim();
         const jmlInput = document.getElementById('inputJumlah').value.trim();
 
