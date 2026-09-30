@@ -21,7 +21,6 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            /* Latar belakang peta dipertegas dengan overlay gelap profesional agar kontras dan tidak pucat */
             background-color: #0f172a;
             background-image: 
                 linear-gradient(rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.88)),
@@ -40,8 +39,8 @@
         }
 
         .container {
-            width: 100%;
-            max-width: 950px;
+            width: 95%;
+            max-width: 1500px; /* Diperlebar agar lebih lega di layar komputer/laptop */
             background: var(--surface);
             padding: 30px;
             border-radius: 20px;
@@ -310,9 +309,51 @@
 
         .qr-print-container { display: none; }
 
+        /* Responsif Sempurna untuk HP / Mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 5px;
+            }
+            .container {
+                width: 100%;
+                padding: 15px;
+                border-radius: 12px;
+            }
+            .header-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .header-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .header-buttons .btn-add {
+                grid-column: span 2;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 10px;
+            }
+            .filter-section {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px;
+            }
+            .filter-group {
+                min-width: 100%;
+            }
+            th, td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+
         @media print {
             body { background: #ffffff !important; padding: 0; }
-            .container { box-shadow: none; border: none; max-width: 100%; padding: 0; background: transparent; }
+            .container { box-shadow: none; border: none; max-width: 100%; padding: 0; background: transparent; width: 100% !important; }
             .filter-section, .header-buttons, .col-aksi { display: none !important; }
             th { background-color: #cbd5e1 !important; -webkit-print-color-adjust: exact; }
             .qr-print-container {
@@ -396,7 +437,6 @@
         <ol style="margin: 5px 0 0 15px; padding: 0;">
             <li>Pengiriman ke PT. SUZUKI maximal jam 06:00 wib (Pagi) truck sudah berangkat.</li>
             <li>Schedule update minimal H-1.</li>
-            
         </ol>
     </div>
 </div>
@@ -639,17 +679,23 @@
 
     function bukaModalLogin(mode, rowId = null) {
         modeAksiModal = mode;
-        document.getElementById('modalOverlay').style.display = 'flex';
-        document.getElementById('stepLogin').style.display = 'block';
-        document.getElementById('stepForm').style.display = 'none';
-        document.getElementById('adminUser').value = '';
-        document.getElementById('adminPass').value = '';
+        const sudahLogin = sessionStorage.getItem('admin_logged_in');
 
-        if (mode === 'tambah') {
-            document.getElementById('modalTitle').innerText = "🔒 Autorisasi Admin - Tambah Jadwal";
+        if (sudahLogin === 'true') {
+            bukaFormInputEdit(rowId);
         } else {
-            document.getElementById('modalTitle').innerText = "🔒 Autorisasi Admin - Edit Jadwal";
-            document.getElementById('editRowId').value = rowId;
+            document.getElementById('modalOverlay').style.display = 'flex';
+            document.getElementById('stepLogin').style.display = 'block';
+            document.getElementById('stepForm').style.display = 'none';
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+
+            if (mode === 'tambah') {
+                document.getElementById('modalTitle').innerText = "🔒 Autorisasi Admin - Tambah Jadwal";
+            } else {
+                document.getElementById('modalTitle').innerText = "🔒 Autorisasi Admin - Edit Jadwal";
+                document.getElementById('editRowId').value = rowId;
+            }
         }
     }
 
@@ -662,32 +708,40 @@
         const p = document.getElementById('adminPass').value.trim();
 
         if (u === ADMIN_USER && p === ADMIN_PASS) {
-            document.getElementById('stepLogin').style.display = 'none';
-            document.getElementById('stepForm').style.display = 'block';
-
-            if (modeAksiModal === 'tambah') {
-                document.getElementById('modalTitle').innerText = "➕ Buat Jadwal Truk Baru";
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('inputTanggal').value = today;
-                document.getElementById('inputJumlah').value = '';
-            } else {
-                document.getElementById('modalTitle').innerText = "✏️ Revisi / Edit Jadwal Truk";
-                const rowIdToEdit = document.getElementById('editRowId').value;
-                const dataTarget = databaseKedatangan.find(d => d.rowId == rowIdToEdit);
-                if (dataTarget) {
-                    let rawTgl = String(dataTarget.tanggal).split('T')[0];
-                    if (rawTgl.includes('/')) {
-                        const p = rawTgl.split('/');
-                        rawTgl = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-                    }
-                    document.getElementById('inputTanggal').value = rawTgl;
-                    document.getElementById('inputKeperluan').value = dataTarget.kategori;
-                    document.getElementById('inputTujuan').value = dataTarget.tujuan;
-                    document.getElementById('inputJumlah').value = dataTarget.jumlah;
-                }
-            }
+            sessionStorage.setItem('admin_logged_in', 'true');
+            const rowIdToEdit = modeAksiModal === 'edit' ? document.getElementById('editRowId').value : null;
+            bukaFormInputEdit(rowIdToEdit);
         } else {
             alert("Username atau Password salah!");
+        }
+    }
+
+    function bukaFormInputEdit(rowId = null) {
+        document.getElementById('modalOverlay').style.display = 'flex';
+        document.getElementById('stepLogin').style.display = 'none';
+        document.getElementById('stepForm').style.display = 'block';
+
+        if (modeAksiModal === 'tambah') {
+            document.getElementById('modalTitle').innerText = "➕ Buat Jadwal Truk Baru";
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inputTanggal').value = today;
+            document.getElementById('inputJumlah').value = '';
+        } else {
+            document.getElementById('modalTitle').innerText = "✏️ Revisi / Edit Jadwal Truk";
+            if (rowId) document.getElementById('editRowId').value = rowId;
+            const rowIdToEdit = document.getElementById('editRowId').value;
+            const dataTarget = databaseKedatangan.find(d => d.rowId == rowIdToEdit);
+            if (dataTarget) {
+                let rawTgl = String(dataTarget.tanggal).split('T')[0];
+                if (rawTgl.includes('/')) {
+                    const p = rawTgl.split('/');
+                    rawTgl = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                }
+                document.getElementById('inputTanggal').value = rawTgl;
+                document.getElementById('inputKeperluan').value = dataTarget.kategori;
+                document.getElementById('inputTujuan').value = dataTarget.tujuan;
+                document.getElementById('inputJumlah').value = dataTarget.jumlah;
+            }
         }
     }
 
@@ -719,7 +773,8 @@
                 urlKirim = `${URL_APPS_SCRIPT}?action=tambah&tanggal=${encodeURIComponent(tanggalFormatted)}&kategori=${encodeURIComponent(katInput)}&tujuan=${encodeURIComponent(tujInput)}&jumlahRit=${encodeURIComponent(jmlInput)}`;
             } else {
                 const rowId = document.getElementById('editRowId').value;
-                urlKirim = `${URL_APPS_SCRIPT}?action=edit&row=${rowId}&tanggal=${encodeURIComponent(tanggalFormatted)}&kategori=${encodeURIComponent(katInput)}&tujuan=${encodeURIComponent(tujInput)}&jumlahRit=${encodeURIComponent(jmlInput)}`;
+                urlKisIn = `${URL_APPS_SCRIPT}?action=edit&row=${rowId}&tanggal=${encodeURIComponent(tanggalFormatted)}&kategori=${encodeURIComponent(katInput)}&tujuan=${encodeURIComponent(tujInput)}&jumlahRit=${encodeURIComponent(jmlInput)}`;
+                urlKirim = urlKisIn;
             }
 
             await fetch(urlKirim);
