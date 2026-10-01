@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JADWAL DELIVERY DCM - Professional Dashboard</title>
+    <!-- Ubah baris title di bawah ini: -->
+    <title id="pageTitle">JADWAL DELIVERY DCM - Professional Dashboard</title>
     <!-- Library QR Code JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Google Fonts -->
@@ -810,9 +811,25 @@
         }
     }
 
-    function unduhPDF() {
-        window.print();
+function unduhPDF() {
+    const modeLaporan = document.getElementById('pilihMode').value;
+    const tanggalDipilih = document.getElementById('pilihTanggal').value;
+    let namaFileBaru = "JADWAL DELIVERY DCM";
+
+    if (modeLaporan === 'harian' && tanggalDipilih) {
+        namaFileBaru = `JADWAL DELIVERY DCM - ${tanggalDipilih}`;
+    } else {
+        const today = new Date().toISOString().split('T')[0];
+        namaFileBaru = `JADWAL DELIVERY DCM - Semua Data (${today})`;
     }
+
+    document.title = namaFileBaru;
+    window.print();
+
+    setTimeout(() => {
+        document.title = "JADWAL DELIVERY DCM - Professional Dashboard";
+    }, 1000);
+}
 </script>
 
 </body>
