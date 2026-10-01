@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JADWAL DELIVERY DCM - Professional Dashboard</title>
+    <title id="pageTitle">JADWAL DELIVERY DCM - Professional Dashboard</title>
     <!-- Library QR Code JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Google Fonts -->
@@ -21,17 +21,17 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            /* Latar belakang peta dipertegas dengan overlay gelap profesional agar kontras dan tidak pucat */
             background-color: #0f172a;
+            /* Latar belakang menggunakan gambar truk dan jalan raya pilihan Anda */
             background-image: 
                 linear-gradient(rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.88)),
-                url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1920&q=80');
+                url('—Pngtree—blue semi truck driving on_15731828.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: var(--text-primary);
             margin: 0;
-            padding: 30px 15px;
+            padding: 25px 20px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -41,7 +41,7 @@
 
         .container {
             width: 100%;
-            max-width: 950px;
+            max-width: 1250px;
             background: var(--surface);
             padding: 30px;
             border-radius: 20px;
@@ -338,7 +338,7 @@
     </div>
 
     <div class="header-section">
-        <h2>🗺️️ JADWAL DELIVERY DCM</h2>
+        <h2>🚚 JADWAL DELIVERY DCM</h2>
         <div class="header-buttons">
             <a href="https://hita.oslog.id/#/app/dashboard-vehicle" target="_blank" class="btn btn-gps">📍 Lacak GPS</a>
             <button class="btn btn-add" onclick="bukaModalLogin('tambah')">➕ Buat Jadwal Truk</button>
@@ -466,7 +466,7 @@
     const ADMIN_PASS = "dian123";
 
     let databaseKedatangan = [];
-    let modeAksiModal = 'tambah'; // 'tambah' atau 'edit'
+    let modeAksiModal = 'tambah';
     const NAMA_BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -483,7 +483,6 @@
 
         muatDataDariSheet();
 
-        // Auto-refresh data di latar belakang setiap 3 menit tanpa membuat lag/berkedip
         setInterval(() => {
             muatDataLatarBelakang();
         }, 3 * 60 * 1000);
@@ -578,6 +577,19 @@
         
         groupTanggal.style.display = (modeLaporan === 'semua') ? 'none' : 'block';
         const tglPilihNorm = normalkanTanggal(tanggalDipilih);
+
+        if (modeLaporan === 'semua') {
+            document.getElementById('pageTitle').innerText = "Jadwal Delivery DCM - Semua Data";
+        } else if (tanggalDipilih) {
+            const parts = tanggalDipilih.split('-');
+            if(parts.length === 3) {
+                document.getElementById('pageTitle').innerText = `Jadwal Delivery DCM - ${parts[2]}-${parts[1]}-${parts[0]}`;
+            } else {
+                document.getElementById('pageTitle').innerText = `Jadwal Delivery DCM - ${tanggalDipilih}`;
+            }
+        } else {
+            document.getElementById('pageTitle').innerText = "Jadwal Delivery DCM";
+        }
 
         const hasilFilter = databaseKedatangan.filter(item => {
             const matchTruck = (truckDipilih === 'semua') || (String(item.truck).trim().toUpperCase() === truckDipilih.toUpperCase());
