@@ -814,13 +814,29 @@
 function unduhPDF() {
     const modeLaporan = document.getElementById('pilihMode').value;
     const tanggalDipilih = document.getElementById('pilihTanggal').value;
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    
     let namaFileBaru = "JADWAL DELIVERY DCM";
 
     if (modeLaporan === 'harian' && tanggalDipilih) {
-        namaFileBaru = `JADWAL DELIVERY DCM - ${tanggalDipilih}`;
+        // Memecah format tanggal YYYY-MM-DD
+        const bagianTgl = tanggalDipilih.split('-');
+        if (bagianTgl.length === 3) {
+            const tahun = bagianTgl[0];
+            const bulanIndeks = parseInt(bagianTgl[1], 10) - 1;
+            const hari = bagianTgl[2];
+            const bulan = namaBulan[bulanIndeks] ? namaBulan[bulanIndeks].toUpperCase() : bagianTgl[1];
+            
+            namaFileBaru = `JADWAL DELIVERY DCM: ${hari} ${bulan} ${tahun}`;
+        } else {
+            namaFileBaru = `JADWAL DELIVERY DCM: ${tanggalDipilih}`;
+        }
     } else {
-        const today = new Date().toISOString().split('T')[0];
-        namaFileBaru = `JADWAL DELIVERY DCM - Semua Data (${today})`;
+        const sekarang = new Date();
+        const hari = String(sekarang.getDate()).padStart(2, '0');
+        const bulan = namaBulan[sekarang.getMonth()].toUpperCase();
+        const tahun = sekarang.getFullYear();
+        namaFileBaru = `JADWAL DELIVERY DCM: SEMUA DATA (${hari} ${bulan} ${tahun})`;
     }
 
     document.title = namaFileBaru;
@@ -830,7 +846,6 @@ function unduhPDF() {
         document.title = "JADWAL DELIVERY DCM - Professional Dashboard";
     }, 1000);
 }
-</script>
 
 </body>
 </html>
